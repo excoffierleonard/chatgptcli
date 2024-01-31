@@ -24,8 +24,7 @@ def api(prompt, model, n, quality, response_format, size, style, user):
             user=user
         )
 
-        image_url = response.data[0].url
-        return image_url
+        return response
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -41,6 +40,7 @@ def gui():
         style_var.get(),
         user_entry.get()
     )
+    result = result.data[0].url
     if result.startswith("http"):
         messagebox.showinfo("Success", "Image generated successfully.")
         webbrowser.open(result)
@@ -59,6 +59,7 @@ def cli(args):
         args.style,
         args.user
     )
+    result = result.data[0].url
     if result.startswith("http"):
         print("Success: Image URL:", result)
     else:
