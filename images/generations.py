@@ -6,7 +6,7 @@ import os
 from openai import OpenAI
 
 # Function to generate the image using the OpenAI API
-def generate_image_api(prompt, model, n, quality, response_format, size, style, user):
+def api(prompt, model, n, quality, response_format, size, style, user):
     try:
         # Initialize OpenAI client
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
@@ -30,8 +30,8 @@ def generate_image_api(prompt, model, n, quality, response_format, size, style, 
         return f"Error: {str(e)}"
 
 # GUI Function
-def generate_image_gui():
-    result = generate_image_api(
+def gui():
+    result = api(
         prompt_entry.get(),
         model_var.get(),
         int(n_entry.get()),
@@ -48,8 +48,8 @@ def generate_image_gui():
         messagebox.showerror("Error", result)
 
 # Function for CLI
-def run_cli_mode(args):
-    result = generate_image_api(
+def cli(args):
+    result = api(
         args.prompt,
         args.model,
         args.n,
@@ -73,7 +73,7 @@ parser.add_argument('-q', '--quality', type=str, default='standard', choices=['s
 parser.add_argument('-rf', '--response_format', type=str, default='url', choices=['url', 'b64_json'], help='The format in which the images are returned.')
 parser.add_argument('-s', '--size', type=str, default='1024x1024', choices=['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'], help='The size of the generated images.')
 parser.add_argument('-st', '--style', type=str, default='vivid', choices=['vivid', 'natural'], help='The style of the generated images.')
-parser.add_argument('-u', '--user', type=str, default='vivid', help='A unique identifier representing your end-user.')
+parser.add_argument('-u', '--user', type=str, default='', help='A unique identifier representing your end-user.')
 
 args = parser.parse_args()
 
@@ -86,7 +86,7 @@ for arg in vars(args):
 
 # Check if any arguments were provided for CLI mode
 if cli_mode:
-    run_cli_mode(args)
+    cli(args)
 else:
     # Initialize Tkinter for GUI mode
     root = tk.Tk()
@@ -133,7 +133,7 @@ else:
     user_entry.pack()
 
     # Generate Button for GUI
-    generate_button = tk.Button(root, text="Generate Image", command=generate_image_gui)
+    generate_button = tk.Button(root, text="Generate Image", command=gui)
     generate_button.pack()
 
     # Run the GUI application
