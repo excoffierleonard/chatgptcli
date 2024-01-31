@@ -1,40 +1,140 @@
-import os
 import argparse
+import tkinter as tk
+from tkinter import messagebox
+import webbrowser
+import os
 from openai import OpenAI
 
-# Get API key
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+# Function to generate the image using the OpenAI API
+def generate_image_api(prompt, model, n, quality, response_format, size, style, user):
+    try:
+        # Initialize OpenAI client
+        OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+        client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Initialize OpenAI client
-client = OpenAI(api_key=OPENAI_API_KEY)
+        # Call the OpenAI API with the provided arguments
+        response = client.images.generate(
+            prompt=prompt,
+            model=model,
+            n=n,
+            quality=quality,
+            response_format=response_format,
+            size=size,
+            style=style,
+            user=user
+        )
 
-# Initialize the ArgumentParser
+        # Extract the URL
+        image_url = response.data[0].url
+
+        # Open the URL in the default web browser
+        webbrowser.open(image_url)
+        return "Success: Image generated and opened in browser."
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# GUI Function
+def generate_image_gui():
+    result = generate_image_api(
+        prompt_entry.get(),
+        model_var.get(),
+        int(n_entry.get()),
+        quality_var.get(),
+        response_format_var.get(),
+        size_var.get(),
+        style_var.get(),
+        user_entry.get()
+    )
+    if result.startswith("Success"):
+        messagebox.showinfo("Success", result)
+    else:
+        messagebox.showerror("Error", result)
+
+# Function for CLI
+def cli_mode(args):
+    result = generate_image_api(
+        args.prompt,
+        args.model,
+        args.n,
+        args.quality,
+        args.response_format,
+        args.size,
+        args.style,
+        args.user
+    )
+    print(result)
+
+# Parse CLI Arguments
 parser = argparse.ArgumentParser(description='Generate images using OpenAI.')
-
-# Define arguments with validation
-parser.add_argument('-p', '--prompt', type=str, required=True, help='A text description of the desired image(s). The maximum length is 1000 characters for dall-e-2 and 4000 characters for dall-e-3.')
+parser.add_argument('-p', '--prompt', type=str, help='A text description of the desired image.')
 parser.add_argument('-m', '--model', type=str, default='dall-e-2', choices=['dall-e-2', 'dall-e-3'], help='The model to use for image generation.')
-parser.add_argument('-n', type=int, default=1, choices=range(1, 11), help='The number of images to generate. Must be between 1 and 10. For dall-e-3, only n=1 is supported.')
-parser.add_argument('-q', '--quality', type=str, default='standard', choices=['standard', 'hd'], help='The quality of the image that will be generated. hd creates images with finer details and greater consistency across the image. This param is only supported for dall-e-3.')
-parser.add_argument('-rf', '--response_format', type=str, default='url', choices=['url', 'b64_json'], help='The format in which the generated images are returned. Must be one of url or b64_json.')
-parser.add_argument('-s', '--size', type=str, default='1024x1024', choices=['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'], help='The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024 for dall-e-2. Must be one of 1024x1024, 1792x1024, or 1024x1792 for dall-e-3 models.')
-parser.add_argument('-st', '--style', type=str, default='vivid', choices=['vivid', 'natural'], help='The style of the generated images. Must be one of vivid or natural. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. This param is only supported for dall-e-3.')
-parser.add_argument('-u', '--user', type=str, default='', help='A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.')
+parser.add_argument('-n', type=int, default=1, choices=range(1, 11), help='The number of images to generate.')
+parser.add_argument('-q', '--quality', type=str, default='standard', choices=['standard', 'hd'], help='The quality of the image.')
+parser.add_argument('-rf', '--response_format', type=str, default='url', choices=['url', 'b64_json'], help='The format in which the images are returned.')
+parser.add_argument('-s', '--size', type=str, default='1024x1024', choices=['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'], help='The size of the generated images.')
+parser.add_argument('-st', '--style', type=str, default='vivid', choices=['vivid', 'natural'], help='The style of the generated images.')
+parser.add_argument('-u', '--user', type=str, help='A unique identifier representing your end-user.')
 
-# Parse arguments
 args = parser.parse_args()
 
-# Call the OpenAI API with the provided arguments
-response = client.images.generate(
-    prompt=args.prompt,
-    model=args.model,
-    n=args.n,
-    quality=args.quality,
-    response_format=args.response_format,
-    size=args.size,
-    style=args.style,
-    user=args.user
-)
+# Check if any CLI argument is provided and different from default
+cli_mode = False
+for arg in vars(args):
+    if getattr(args, arg) is not None and getattr(args, arg) != parser.get_default(arg):
+        cli_mode = True
+        break
 
-# Print the response
-print(response)
+# Check if any arguments were provided for CLI mode
+if cli_mode:
+    cli_mode(args)
+else:
+    # Initialize Tkinter for GUI mode
+    root = tk.Tk()
+    root.title("OpenAI Image Generator")
+
+    # Prompt
+    tk.Label(root, text="Prompt:").pack()
+    prompt_entry = tk.Entry(root)
+    prompt_entry.pack()
+
+    # Model
+    tk.Label(root, text="Model:").pack()
+    model_var = tk.StringVar(value="dall-e-2")
+    tk.OptionMenu(root, model_var, "dall-e-2", "dall-e-3").pack()
+
+    # Number of Images
+    tk.Label(root, text="Number of Images:").pack()
+    n_entry = tk.Entry(root)
+    n_entry.pack()
+
+    # Quality
+    tk.Label(root, text="Quality:").pack()
+    quality_var = tk.StringVar(value="standard")
+    tk.OptionMenu(root, quality_var, "standard", "hd").pack()
+
+    # Response Format
+    tk.Label(root, text="Response Format:").pack()
+    response_format_var = tk.StringVar(value="url")
+    tk.OptionMenu(root, response_format_var, "url", "b64_json").pack()
+
+    # Size
+    tk.Label(root, text="Size:").pack()
+    size_var = tk.StringVar(value="1024x1024")
+    tk.OptionMenu(root, size_var, "256x256", "512x512", "1024x1024", "1792x1024", "1024x1792").pack()
+
+    # Style
+    tk.Label(root, text="Style:").pack()
+    style_var = tk.StringVar(value="vivid")
+    tk.OptionMenu(root, style_var, "vivid", "natural").pack()
+
+    # User
+    tk.Label(root, text="User:").pack()
+    user_entry = tk.Entry(root)
+    user_entry.pack()
+
+    # Generate Button for GUI
+    generate_button = tk.Button(root, text="Generate Image", command=generate_image_gui)
+    generate_button.pack()
+
+    # Run the GUI application
+    root.mainloop()
