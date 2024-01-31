@@ -24,12 +24,8 @@ def generate_image_api(prompt, model, n, quality, response_format, size, style, 
             user=user
         )
 
-        # Extract the URL
         image_url = response.data[0].url
-
-        # Open the URL in the default web browser
-        webbrowser.open(image_url)
-        return "Success: Image generated and opened in browser."
+        return image_url
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -45,8 +41,9 @@ def generate_image_gui():
         style_var.get(),
         user_entry.get()
     )
-    if result.startswith("Success"):
-        messagebox.showinfo("Success", result)
+    if result.startswith("http"):
+        messagebox.showinfo("Success", "Image generated successfully.")
+        webbrowser.open(result)
     else:
         messagebox.showerror("Error", result)
 
@@ -62,7 +59,10 @@ def run_cli_mode(args):
         args.style,
         args.user
     )
-    print(result)
+    if result.startswith("http"):
+        print("Success: Image URL:", result)
+    else:
+        print(result)
 
 # Parse CLI Arguments
 parser = argparse.ArgumentParser(description='Generate images using OpenAI.')
