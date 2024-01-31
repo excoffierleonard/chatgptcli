@@ -51,7 +51,7 @@ def generate_image_gui():
         messagebox.showerror("Error", result)
 
 # Function for CLI
-def cli_mode(args):
+def run_cli_mode(args):
     result = generate_image_api(
         args.prompt,
         args.model,
@@ -73,7 +73,7 @@ parser.add_argument('-q', '--quality', type=str, default='standard', choices=['s
 parser.add_argument('-rf', '--response_format', type=str, default='url', choices=['url', 'b64_json'], help='The format in which the images are returned.')
 parser.add_argument('-s', '--size', type=str, default='1024x1024', choices=['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'], help='The size of the generated images.')
 parser.add_argument('-st', '--style', type=str, default='vivid', choices=['vivid', 'natural'], help='The style of the generated images.')
-parser.add_argument('-u', '--user', type=str, help='A unique identifier representing your end-user.')
+parser.add_argument('-u', '--user', type=str, default='vivid', help='A unique identifier representing your end-user.')
 
 args = parser.parse_args()
 
@@ -86,7 +86,7 @@ for arg in vars(args):
 
 # Check if any arguments were provided for CLI mode
 if cli_mode:
-    cli_mode(args)
+    run_cli_mode(args)
 else:
     # Initialize Tkinter for GUI mode
     root = tk.Tk()
