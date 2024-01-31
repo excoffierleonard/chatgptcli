@@ -29,9 +29,9 @@ def api(prompt, model, n, quality, response_format, size, style, user):
 # GUI Function
 def gui():
     result = api(
-        prompt_entry.get(),
+        prompt_text.get("1.0", "end-1c"),
         model_var.get(),
-        int(n_entry.get()),
+        int(n_spinbox.get()),
         quality_var.get(),
         response_format_var.get(),
         size_var.get(),
@@ -42,7 +42,7 @@ def gui():
     revised_prompt = result.data[0].revised_prompt
     if url.startswith("http"):
         webbrowser.open(url)
-        messagebox.showinfo("Success", "Image generated successfully.", "revised_prompt=", revised_prompt)
+        messagebox.showinfo("Success, image(s) generated successfully. revised_prompt=", revised_prompt)
     else:
         messagebox.showerror("Error", result)
 
@@ -89,16 +89,16 @@ else:
     root.title("OpenAI Image Generator")
 
     tk.Label(root, text="Prompt:").pack()
-    prompt_entry = tk.Entry(root)
-    prompt_entry.pack()
+    prompt_text = tk.Text(root)
+    prompt_text.pack()
 
     tk.Label(root, text="Model:").pack()
     model_var = tk.StringVar(value="dall-e-2")
     tk.OptionMenu(root, model_var, "dall-e-2", "dall-e-3").pack()
 
     tk.Label(root, text="Number of Images:").pack()
-    n_entry = tk.Entry(root)
-    n_entry.pack()
+    n_spinbox = tk.Spinbox(root, from_=1, to=10)
+    n_spinbox.pack()
 
     tk.Label(root, text="Quality:").pack()
     quality_var = tk.StringVar(value="standard")
