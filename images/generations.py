@@ -101,6 +101,17 @@ def check_prompt(event):
     else:
         generate_button.config(state=tk.DISABLED)
 
+# Function to handle model selection changes and restrict n=1 if DALL-E 3 is chosen
+def handle_model_change(*args):
+    model_selected = model_var.get()
+
+    if model_selected == "dall-e-3":
+        n_spinbox.delete(0, tk.END)
+        n_spinbox.insert(0, "1")
+        n_spinbox.config(state=tk.DISABLED)
+    else:
+        n_spinbox.config(state=tk.NORMAL)
+
 # Check if any arguments were provided for CLI mode
 if cli_mode:
     cli(args)
@@ -115,7 +126,9 @@ else:
 
     tk.Label(root, text="Model:").pack()
     model_var = tk.StringVar(value="dall-e-2")
-    tk.OptionMenu(root, model_var, "dall-e-2", "dall-e-3").pack()
+    model_var.trace("w", handle_model_change)
+    model_option_menu = tk.OptionMenu(root, model_var, "dall-e-2", "dall-e-3")
+    model_option_menu.pack()
 
     tk.Label(root, text="Number of Images:").pack()
     n_spinbox = tk.Spinbox(root, from_=1, to=10)
