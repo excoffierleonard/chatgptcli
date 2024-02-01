@@ -51,15 +51,10 @@ def gui():
 
         messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
 
-    except openai.BadRequestError as e:
-        error_str = str(e)
-        dict_start = error_str.find('{')
-        error_dict = eval(error_str[dict_start:])
+    except Exception as e:
+        messagebox.showerror("Error", e)
 
-        error_message = error_dict['error']['message']
-        messagebox.showerror("Error", error_message)
-
-# Function for CLI
+# CLI Function
 def cli(args):
     result = api(
         args.prompt,
