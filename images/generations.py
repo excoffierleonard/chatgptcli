@@ -109,8 +109,13 @@ def handle_model_change(*args):
         n_spinbox.delete(0, tk.END)
         n_spinbox.insert(0, "1")
         n_spinbox.config(state=tk.DISABLED)
+
+        quality_option_menu.config(state=tk.NORMAL)
     else:
         n_spinbox.config(state=tk.NORMAL)
+
+        quality_var.set("standard")
+        quality_option_menu.config(state=tk.DISABLED)
 
 # Check if any arguments were provided for CLI mode
 if cli_mode:
@@ -136,7 +141,9 @@ else:
 
     tk.Label(root, text="Quality:").pack()
     quality_var = tk.StringVar(value="standard")
-    tk.OptionMenu(root, quality_var, "standard", "hd").pack()
+    quality_option_menu = tk.OptionMenu(root, quality_var, "standard", "hd")
+    quality_option_menu.config(state=tk.DISABLED)
+    quality_option_menu.pack()
 
     tk.Label(root, text="Response Format:").pack()
     response_format_var = tk.StringVar(value="url")
