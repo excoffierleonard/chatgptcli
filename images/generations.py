@@ -3,28 +3,25 @@ import tkinter as tk
 from tkinter import messagebox
 import webbrowser
 import os
+import openai
 from openai import OpenAI
 
 # Function to generate the image using the OpenAI API
 def api(prompt, model, n, quality, response_format, size, style, user):
-    try:
-        OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
-        client = OpenAI(api_key=OPENAI_API_KEY)
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
-        response = client.images.generate(
-            prompt=prompt,
-            model=model,
-            n=n,
-            quality=quality,
-            response_format=response_format,
-            size=size,
-            style=style,
-            user=user
-        )
-
-        return response
-    except Exception as e:
-        return f"Error: {str(e)}"
+    response = client.images.generate(
+        prompt=prompt,
+        model=model,
+        n=n,
+        quality=quality,
+        response_format=response_format,
+        size=size,
+        style=style,
+        user=user
+    )
+    return response
 
 # GUI Function
 def gui():
@@ -54,8 +51,13 @@ def gui():
 
         messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
 
-    except AttributeError as e:
-        messagebox.showerror("Error", f"An error occurred: {e}")
+    except openai.BadRequestError as e:
+        error_str = str(e)
+        dict_start = error_str.find('{')
+        error_dict = eval(error_str[dict_start:])
+
+        error_message = error_dict['error']['message']
+        messagebox.showerror("Error", error_message)
 
 # Function for CLI
 def cli(args):
