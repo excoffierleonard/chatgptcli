@@ -93,6 +93,14 @@ for arg in vars(args):
         cli_mode = True
         break
 
+# Function to check the prompt and enable/disable the generate button
+def check_prompt(event):
+    prompt_content = prompt_text.get("1.0", "end-1c").strip()
+    if prompt_content:
+        generate_button.config(state=tk.NORMAL)
+    else:
+        generate_button.config(state=tk.DISABLED)
+
 # Check if any arguments were provided for CLI mode
 if cli_mode:
     cli(args)
@@ -103,6 +111,7 @@ else:
     tk.Label(root, text="Prompt:").pack()
     prompt_text = tk.Text(root)
     prompt_text.pack()
+    prompt_text.bind("<KeyRelease>", check_prompt)
 
     tk.Label(root, text="Model:").pack()
     model_var = tk.StringVar(value="dall-e-2")
@@ -134,5 +143,6 @@ else:
 
     generate_button = tk.Button(root, text="Generate Image", command=gui)
     generate_button.pack()
+    generate_button.config(state=tk.DISABLED)
 
     root.mainloop()
