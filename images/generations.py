@@ -42,14 +42,18 @@ def gui():
 
         for item in result.data:
             urls.append(item.url)
-            revised_prompts.append(item.revised_prompt)
+            if hasattr(item, 'revised_prompt') and item.revised_prompt:
+                revised_prompts.append(item.revised_prompt)
 
         for url in urls:
             webbrowser.open(url)
 
-        all_revised_prompts = "\n\n".join(revised_prompts)
-
-        messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
+        if revised_prompts:
+            all_revised_prompts = "\n\n".join(revised_prompts)
+            messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
+        else:
+            prompt = prompt_text.get("1.0", "end-1c")
+            messagebox.showinfo("Success", f"Image(s) generated successfully.\n\nPrompt:\n\n{prompt}")
 
     except Exception as e:
         messagebox.showerror("Error", e)
