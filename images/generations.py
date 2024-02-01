@@ -28,23 +28,34 @@ def api(prompt, model, n, quality, response_format, size, style, user):
 
 # GUI Function
 def gui():
-    result = api(
-        prompt_text.get("1.0", "end-1c"),
-        model_var.get(),
-        int(n_spinbox.get()),
-        quality_var.get(),
-        response_format_var.get(),
-        size_var.get(),
-        style_var.get(),
-        user_entry.get()
-    )
-    url = result.data[0].url
-    revised_prompt = result.data[0].revised_prompt
-    if url.startswith("http"):
-        webbrowser.open(url)
-        messagebox.showinfo("Success, image(s) generated successfully. revised_prompt=", revised_prompt)
-    else:
-        messagebox.showerror("Error", result)
+    try:
+        result = api(
+            prompt_text.get("1.0", "end-1c"),
+            model_var.get(),
+            int(n_spinbox.get()),
+            quality_var.get(),
+            response_format_var.get(),
+            size_var.get(),
+            style_var.get(),
+            user_entry.get()
+        )
+
+        urls = []
+        revised_prompts = []
+
+        for item in result.data:
+            urls.append(item.url)
+            revised_prompts.append(item.revised_prompt)
+
+        for url in urls:
+            webbrowser.open(url)
+
+        all_revised_prompts = "\n\n".join(revised_prompts)
+
+        messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
+
+    except AttributeError as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
 
 # Function for CLI
 def cli(args):
