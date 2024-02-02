@@ -102,20 +102,35 @@ def check_prompt(event):
         generate_button.config(state=tk.DISABLED)
 
 # Function to handle model selection changes and restrict n=1 if DALL-E 3 is chosen
-def handle_model_change(*args):
-    model_selected = model_var.get()
+def update_gui_based_on_model(*args):
+    model = model_var.get()
+    if model == "dall-e-3":
+        n_spinbox.config(state="readonly", values=(1,))
+        quality_option_menu['menu'].entryconfig("hd", state="normal")
+        size_var.set("1024x1024")  # Reset to valid size for DALL-E 3
+        # Update size options
+        for size in ["256x256", "512x512", "1792x1024", "1024x1792"]:
+            state = "normal" if size in ["1024x1024", "1792x1024", "1024x1792"] else "disabled"
+            size_option_menu['menu'].entryconfig(size, state=state)
 
-    if model_selected == "dall-e-3":
-        n_spinbox.delete(0, tk.END)
-        n_spinbox.insert(0, "1")
-        n_spinbox.config(state=tk.DISABLED)
-
-        quality_option_menu.config(state=tk.NORMAL)
+        # Enable style options as they are applicable
+        style_option_menu['menu'].entryconfig("vivid", state="normal")
+        style_option_menu['menu'].entryconfig("natural", state="normal")
+        
     else:
-        n_spinbox.config(state=tk.NORMAL)
-
+        n_spinbox.config(state="normal", values=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+        quality_option_menu['menu'].entryconfig("hd", state="disabled")
         quality_var.set("standard")
-        quality_option_menu.config(state=tk.DISABLED)
+        size_var.set("1024x1024")
+        style_var.set("vivid")
+        # Update size options
+        for size in ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]:
+            state = "normal" if size in ["256x256", "512x512", "1024x1024"] else "disabled"
+            size_option_menu['menu'].entryconfig(size, state=state)
+        
+        # Disable style options as they are not applicable
+        style_option_menu['menu'].entryconfig("vivid", state="normal")
+        style_option_menu['menu'].entryconfig("natural", state="disabled")
 
 # Check if any arguments were provided for CLI mode
 if cli_mode:
@@ -131,31 +146,34 @@ else:
 
     tk.Label(root, text="Model:").pack()
     model_var = tk.StringVar(value="dall-e-2")
-    model_var.trace("w", handle_model_change)
+    model_var.trace('w', update_gui_based_on_model)
     model_option_menu = tk.OptionMenu(root, model_var, "dall-e-2", "dall-e-3")
     model_option_menu.pack()
 
     tk.Label(root, text="Number of Images:").pack()
-    n_spinbox = tk.Spinbox(root, from_=1, to=10)
+    n_spinbox = tk.Spinbox(root, from_=1, to=10, state="readonly")
     n_spinbox.pack()
 
     tk.Label(root, text="Quality:").pack()
     quality_var = tk.StringVar(value="standard")
     quality_option_menu = tk.OptionMenu(root, quality_var, "standard", "hd")
-    quality_option_menu.config(state=tk.DISABLED)
     quality_option_menu.pack()
 
     tk.Label(root, text="Response Format:").pack()
     response_format_var = tk.StringVar(value="url")
-    tk.OptionMenu(root, response_format_var, "url", "b64_json").pack()
+    response_format_option_menu = tk.OptionMenu(root, response_format_var, "url", "b64_json")
+    response_format_option_menu.pack()
+    response_format_option_menu.config(state=tk.DISABLED)
 
     tk.Label(root, text="Size:").pack()
     size_var = tk.StringVar(value="1024x1024")
-    tk.OptionMenu(root, size_var, "256x256", "512x512", "1024x1024", "1792x1024", "1024x1792").pack()
+    size_option_menu = tk.OptionMenu(root, size_var, "256x256", "512x512", "1024x1024", "1792x1024", "1024x1792")
+    size_option_menu.pack()
 
     tk.Label(root, text="Style:").pack()
     style_var = tk.StringVar(value="vivid")
-    tk.OptionMenu(root, style_var, "vivid", "natural").pack()
+    style_option_menu = tk.OptionMenu(root, style_var, "vivid", "natural")
+    style_option_menu.pack()
 
     tk.Label(root, text="User:").pack()
     user_entry = tk.Entry(root)
@@ -164,5 +182,7 @@ else:
     generate_button = tk.Button(root, text="Generate Image", command=gui)
     generate_button.pack()
     generate_button.config(state=tk.DISABLED)
+
+    update_gui_based_on_model()
 
     root.mainloop()
