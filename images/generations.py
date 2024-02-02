@@ -93,8 +93,8 @@ for arg in vars(args):
         cli_mode = True
         break
 
-def create_option_menu(root, label, variable, default, *options):
-    tk.Label(root, text=label + ":").pack()
+def create_option_menu(label, default, *options):
+    tk.Label(root, text=f"{label}:").pack()
     var = tk.StringVar(value=default)
     option_menu = tk.OptionMenu(root, var, *options)
     option_menu.pack()
@@ -175,13 +175,13 @@ else:
     n_spinbox = tk.Spinbox(root, from_=1, to=10, state="readonly")
     n_spinbox.pack()
 
-    quality_var, quality_option_menu = create_option_menu(root, "Quality", "quality_var", "standard", "standard", "hd")
+    quality_var, quality_option_menu = create_option_menu("Quality", "standard", "standard", "hd")
 
-    response_format_var, response_format_option_menu = create_option_menu(root, "Response Format", "response_format_var", "url", "url", "b64_json")
+    response_format_var, response_format_option_menu = create_option_menu("Response Format", "url", "url", "b64_json")
 
-    size_var, size_option_menu = create_option_menu(root, "Size", "size_var", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
+    size_var, size_option_menu = create_option_menu("Size", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
 
-    style_var, style_option_menu = create_option_menu(root, "Style", "style_var", "vivid", "vivid", "natural")
+    style_var, style_option_menu = create_option_menu("Style", "vivid", "vivid", "natural")
 
     tk.Label(root, text="User:").pack()
     user_entry = tk.Entry(root)
