@@ -111,48 +111,42 @@ def check_prompt(event):
 # Function to handle model selection changes and restrict n=1 if DALL-E 3 is chosen
 def update_gui_based_on_model(*args):
     model = model_var.get()
-    if model == "dall-e-3":
-        n_spinbox.config(state="readonly", value=(1))
 
-        quality_option_menu['menu'].entryconfig("standard", state="normal")
-        quality_option_menu['menu'].entryconfig("hd", state="normal")
+    quality_option_menu['menu'].entryconfig("standard", state="normal")
+    response_format_var.set("url")
+    response_format_option_menu['menu'].entryconfig("url", state="normal")
+    response_format_option_menu['menu'].entryconfig("b64_json", state="disabled")
+    size_var.set("1024x1024")
+    size_option_menu['menu'].entryconfig("1024x1024", state="normal")
+    style_option_menu['menu'].entryconfig("vivid", state="normal")
 
-        response_format_var.set("url")
-        response_format_option_menu['menu'].entryconfig("url", state="normal")
-        response_format_option_menu['menu'].entryconfig("b64_json", state="disabled")
-
-        size_var.set("1024x1024")
-        size_option_menu['menu'].entryconfig("256x256", state="disabled")
-        size_option_menu['menu'].entryconfig("512x512", state="disabled")
-        size_option_menu['menu'].entryconfig("1024x1024", state="normal")
-        size_option_menu['menu'].entryconfig("1024x1792", state="normal")
-        size_option_menu['menu'].entryconfig("1792x1024", state="normal")
-
-        style_option_menu['menu'].entryconfig("vivid", state="normal")
-        style_option_menu['menu'].entryconfig("natural", state="normal")
-
-    else:
+    if model == "dall-e-2":
         n_spinbox.config(state="normal", values=tuple(range(1, 11)))
 
         quality_var.set("standard")
-        quality_option_menu['menu'].entryconfig("standard", state="normal")
         quality_option_menu['menu'].entryconfig("hd", state="disabled")
 
-        response_format_var.set("url")
-        response_format_option_menu['menu'].entryconfig("url", state="normal")
-        response_format_option_menu['menu'].entryconfig("b64_json", state="disabled")
-
-        size_var.set("1024x1024")
         size_option_menu['menu'].entryconfig("256x256", state="normal")
         size_option_menu['menu'].entryconfig("512x512", state="normal")
-        size_option_menu['menu'].entryconfig("1024x1024", state="normal")
         size_option_menu['menu'].entryconfig("1024x1792", state="disabled")
         size_option_menu['menu'].entryconfig("1792x1024", state="disabled")
 
         style_var.set("vivid")
-        style_option_menu['menu'].entryconfig("vivid", state="normal")
+
         style_option_menu['menu'].entryconfig("natural", state="disabled")
-        
+
+    if model == "dall-e-3":
+        n_spinbox.config(state="readonly", value=(1))
+
+        quality_option_menu['menu'].entryconfig("hd", state="normal")
+
+        size_option_menu['menu'].entryconfig("256x256", state="disabled")
+        size_option_menu['menu'].entryconfig("512x512", state="disabled")
+        size_option_menu['menu'].entryconfig("1024x1792", state="normal")
+        size_option_menu['menu'].entryconfig("1792x1024", state="normal")
+
+        style_option_menu['menu'].entryconfig("natural", state="normal")
+
 # Check if any arguments were provided for CLI mode
 if cli_mode:
     cli(args)
