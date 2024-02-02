@@ -109,8 +109,8 @@ def update_gui_based_on_model(*args):
         quality_option_menu['menu'].entryconfig("hd", state="normal")
         size_var.set("1024x1024")  # Reset to valid size for DALL-E 3
         # Update size options
-        for size in ["256x256", "512x512", "1792x1024", "1024x1792"]:
-            state = "normal" if size in ["1024x1024", "1792x1024", "1024x1792"] else "disabled"
+        for size in ["256x256", "512x512", "1024x1792", "1792x1024"]:
+            state = "normal" if size in ["1024x1024", "1024x1792", "1792x1024"] else "disabled"
             size_option_menu['menu'].entryconfig(size, state=state)
 
         # Enable style options as they are applicable
@@ -124,7 +124,7 @@ def update_gui_based_on_model(*args):
         size_var.set("1024x1024")
         style_var.set("vivid")
         # Update size options
-        for size in ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]:
+        for size in ["256x256", "512x512", "1024x1024", "1024x1792", "1792x1024"]:
             state = "normal" if size in ["256x256", "512x512", "1024x1024"] else "disabled"
             size_option_menu['menu'].entryconfig(size, state=state)
         
@@ -167,7 +167,7 @@ else:
 
     tk.Label(root, text="Size:").pack()
     size_var = tk.StringVar(value="1024x1024")
-    size_option_menu = tk.OptionMenu(root, size_var, "256x256", "512x512", "1024x1024", "1792x1024", "1024x1792")
+    size_option_menu = tk.OptionMenu(root, size_var, "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
     size_option_menu.pack()
 
     tk.Label(root, text="Style:").pack()
