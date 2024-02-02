@@ -105,30 +105,24 @@ def check_prompt(event):
 def update_gui_based_on_model(*args):
     model = model_var.get()
     if model == "dall-e-3":
-        n_spinbox.config(state="readonly", values=(1,))
+        n_spinbox.config(state="readonly", value=(1))
         quality_option_menu['menu'].entryconfig("hd", state="normal")
-        size_var.set("1024x1024")  # Reset to valid size for DALL-E 3
-        # Update size options
+        size_var.set("1024x1024")
         for size in ["256x256", "512x512", "1024x1792", "1792x1024"]:
             state = "normal" if size in ["1024x1024", "1024x1792", "1792x1024"] else "disabled"
             size_option_menu['menu'].entryconfig(size, state=state)
-
-        # Enable style options as they are applicable
         style_option_menu['menu'].entryconfig("vivid", state="normal")
         style_option_menu['menu'].entryconfig("natural", state="normal")
-        
+
     else:
-        n_spinbox.config(state="normal", values=(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
-        quality_option_menu['menu'].entryconfig("hd", state="disabled")
+        n_spinbox.config(state="normal", values=tuple(range(1, 11)))
         quality_var.set("standard")
+        quality_option_menu['menu'].entryconfig("hd", state="disabled")
         size_var.set("1024x1024")
-        style_var.set("vivid")
-        # Update size options
         for size in ["256x256", "512x512", "1024x1024", "1024x1792", "1792x1024"]:
             state = "normal" if size in ["256x256", "512x512", "1024x1024"] else "disabled"
             size_option_menu['menu'].entryconfig(size, state=state)
-        
-        # Disable style options as they are not applicable
+        style_var.set("vivid")
         style_option_menu['menu'].entryconfig("vivid", state="normal")
         style_option_menu['menu'].entryconfig("natural", state="disabled")
 
