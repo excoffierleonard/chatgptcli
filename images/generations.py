@@ -93,6 +93,13 @@ for arg in vars(args):
         cli_mode = True
         break
 
+def create_option_menu(root, label, variable, default, *options):
+    tk.Label(root, text=label + ":").pack()
+    var = tk.StringVar(value=default)
+    option_menu = tk.OptionMenu(root, var, *options)
+    option_menu.pack()
+    return var, option_menu
+
 # Function to check the prompt and enable/disable the generate button
 def check_prompt(event):
     prompt_content = prompt_text.get("1.0", "end-1c").strip()
@@ -145,7 +152,7 @@ def update_gui_based_on_model(*args):
         style_var.set("vivid")
         style_option_menu['menu'].entryconfig("vivid", state="normal")
         style_option_menu['menu'].entryconfig("natural", state="disabled")
-
+        
 # Check if any arguments were provided for CLI mode
 if cli_mode:
     cli(args)
@@ -168,25 +175,13 @@ else:
     n_spinbox = tk.Spinbox(root, from_=1, to=10, state="readonly")
     n_spinbox.pack()
 
-    tk.Label(root, text="Quality:").pack()
-    quality_var = tk.StringVar(value="standard")
-    quality_option_menu = tk.OptionMenu(root, quality_var, "standard", "hd")
-    quality_option_menu.pack()
+    quality_var, quality_option_menu = create_option_menu(root, "Quality", "quality_var", "standard", "standard", "hd")
 
-    tk.Label(root, text="Response Format:").pack()
-    response_format_var = tk.StringVar(value="url")
-    response_format_option_menu = tk.OptionMenu(root, response_format_var, "url", "b64_json")
-    response_format_option_menu.pack()
+    response_format_var, response_format_option_menu = create_option_menu(root, "Response Format", "response_format_var", "url", "url", "b64_json")
 
-    tk.Label(root, text="Size:").pack()
-    size_var = tk.StringVar(value="1024x1024")
-    size_option_menu = tk.OptionMenu(root, size_var, "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
-    size_option_menu.pack()
+    size_var, size_option_menu = create_option_menu(root, "Size", "size_var", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
 
-    tk.Label(root, text="Style:").pack()
-    style_var = tk.StringVar(value="vivid")
-    style_option_menu = tk.OptionMenu(root, style_var, "vivid", "natural")
-    style_option_menu.pack()
+    style_var, style_option_menu = create_option_menu(root, "Style", "style_var", "vivid", "vivid", "natural")
 
     tk.Label(root, text="User:").pack()
     user_entry = tk.Entry(root)
@@ -199,3 +194,4 @@ else:
     update_gui_based_on_model()
 
     root.mainloop()
+
