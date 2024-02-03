@@ -116,41 +116,38 @@ class GUI:
     def update_gui_based_on_model(self, *args):
         model = self.model_var.get()
 
-        self.quality_option_menu['menu'].entryconfig("standard", state="normal")
-        self.response_format_var.set("url")
-        self.response_format_option_menu['menu'].entryconfig("url", state="normal")
-        self.response_format_option_menu['menu'].entryconfig("b64_json", state="disabled")
-        self.size_var.set("1024x1024")
-        self.size_option_menu['menu'].entryconfig("1024x1024", state="normal")
-        self.style_option_menu['menu'].entryconfig("vivid", state="normal")
+        model_configs = {
+            "dall-e-2": {
+                "n_values": range(1, 11),
+                "quality": ("standard", ["standard"], ["hd"]),
+                "size": ("1024x1024", ["256x256", "512x512", "1024x1024"], ["1024x1792", "1792x1024"]),
+                "style": ("vivid", ["vivid"], ["natural"]),
+                "response_format": ("url", ["url"], ["b64_json"])
+            },
+            "dall-e-3": {
+                "n_values": (1,),
+                "quality": ("standard", ["hd"], []),
+                "size": ("1024x1024", ["1024x1792", "1792x1024"], ["256x256", "512x512"]),
+                "style": ("vivid", ["natural"], []),
+                "response_format": ("url", ["url"], ["b64_json"])
+            }
+        }
 
-        if model == "dall-e-2":
-            self.n_spinbox.config(values=tuple(range(1, 11)))
+        def apply_config(config_key, config_value):
+            if config_key in ["quality", "size", "style", "response_format"]:
+                var, enabled, disabled = config_value
+                self.__dict__[f"{config_key}_var"].set(var)
+                for option in enabled:
+                    self.__dict__[f"{config_key}_option_menu"]['menu'].entryconfig(option, state="normal")
+                for option in disabled:
+                    self.__dict__[f"{config_key}_option_menu"]['menu'].entryconfig(option, state="disabled")
+            elif config_key == "n_values":
+                self.n_spinbox.config(values=tuple(config_value))
 
-            self.quality_var.set("standard")
-            self.quality_option_menu['menu'].entryconfig("hd", state="disabled")
+        config = model_configs.get(model)
+        for key, value in config.items():
+            apply_config(key, value)
 
-            self.size_option_menu['menu'].entryconfig("256x256", state="normal")
-            self.size_option_menu['menu'].entryconfig("512x512", state="normal")
-            self.size_option_menu['menu'].entryconfig("1024x1792", state="disabled")
-            self.size_option_menu['menu'].entryconfig("1792x1024", state="disabled")
-
-            self.style_var.set("vivid")
-
-            self.style_option_menu['menu'].entryconfig("natural", state="disabled")
-
-        if model == "dall-e-3":
-            self.n_spinbox.config(value=(1))
-
-            self.quality_option_menu['menu'].entryconfig("hd", state="normal")
-
-            self.size_option_menu['menu'].entryconfig("256x256", state="disabled")
-            self.size_option_menu['menu'].entryconfig("512x512", state="disabled")
-            self.size_option_menu['menu'].entryconfig("1024x1792", state="normal")
-            self.size_option_menu['menu'].entryconfig("1792x1024", state="normal")
-
-            self.style_option_menu['menu'].entryconfig("natural", state="normal")
-    
     def generate_images(self):
         try:
             result = api(
