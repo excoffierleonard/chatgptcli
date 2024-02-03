@@ -176,9 +176,7 @@ def run_gui():
 
     prompt_text = create_text(root, "Prompt")
     
-
     model_var, model_option_menu = create_option_menu(root, "Model", "dall-e-2", "dall-e-2", "dall-e-3")
-    
 
     n_spinbox = create_spinbox(root, "Number of Images", 1, 10, "readonly")
 
