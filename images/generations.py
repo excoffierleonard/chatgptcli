@@ -175,21 +175,13 @@ def run_gui():
     root.title("OpenAI Image Generator")
 
     prompt_text = create_text(root, "Prompt")
-    
     model_var, model_option_menu = create_option_menu(root, "Model", "dall-e-2", "dall-e-2", "dall-e-3")
-
     n_spinbox = create_spinbox(root, "Number of Images", 1, 10, "readonly")
-
     quality_var, quality_option_menu = create_option_menu(root, "Quality", "standard", "standard", "hd")
-
     response_format_var, response_format_option_menu = create_option_menu(root, "Response Format", "url", "url", "b64_json")
-
     size_var, size_option_menu = create_option_menu(root, "Size", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
-
     style_var, style_option_menu = create_option_menu(root, "Style", "vivid", "vivid", "natural")
-
     user_entry = create_entry(root, "User")
-
     generate_button = create_button(root, "Generate Image", lambda: gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry))
     
     prompt_text.bind("<KeyRelease>", lambda event: check_prompt(prompt_text, generate_button))
