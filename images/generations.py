@@ -181,7 +181,7 @@ else:
     prompt_text.bind("<KeyRelease>", check_prompt)
 
     model_var, model_option_menu = create_option_menu("Model", "dall-e-2", "dall-e-2", "dall-e-3")
-    model_var.trace('w', update_gui_based_on_model)
+    model_var.trace_add("write", update_gui_based_on_model)
 
     n_spinbox = create_spinbox("Number of Images", 1, 10, "readonly")
 
