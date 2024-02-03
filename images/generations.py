@@ -100,6 +100,12 @@ def create_option_menu(label, default, *options):
     option_menu.pack()
     return var, option_menu
 
+def create_spinbox(label, from_, to, state):
+    tk.Label(root, text=f"{label}:").pack()
+    spinbox = tk.Spinbox(root, from_=from_, to=to, state=state)
+    spinbox.pack()
+    return spinbox
+
 # Function to check the prompt and enable/disable the generate button
 def check_prompt(event):
     prompt_content = prompt_text.get("1.0", "end-1c").strip()
@@ -159,15 +165,10 @@ else:
     prompt_text.pack()
     prompt_text.bind("<KeyRelease>", check_prompt)
 
-    tk.Label(root, text="Model:").pack()
-    model_var = tk.StringVar(value="dall-e-2")
+    model_var, model_option_menu = create_option_menu("Model", "dall-e-2", "dall-e-2", "dall-e-3")
     model_var.trace('w', update_gui_based_on_model)
-    model_option_menu = tk.OptionMenu(root, model_var, "dall-e-2", "dall-e-3")
-    model_option_menu.pack()
 
-    tk.Label(root, text="Number of Images:").pack()
-    n_spinbox = tk.Spinbox(root, from_=1, to=10, state="readonly")
-    n_spinbox.pack()
+    n_spinbox = create_spinbox("Number of Images", 1, 10, "readonly")
 
     quality_var, quality_option_menu = create_option_menu("Quality", "standard", "standard", "hd")
 
