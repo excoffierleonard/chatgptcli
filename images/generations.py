@@ -65,51 +65,55 @@ class GUI:
 
     def setup_gui(self):
         self.root.title("OpenAI Image Generator")
-
-        self.prompt_text = self.create_text("Prompt")
-        self.model_var, self.model_option_menu = self.create_option_menu("Model", "dall-e-2", "dall-e-2", "dall-e-3")
-        self.n_spinbox = self.create_spinbox("Number of Images", 1, 10, "readonly")
-        self.quality_var, self.quality_option_menu = self.create_option_menu("Quality", "standard", "standard", "hd")
-        self.response_format_var, self.response_format_option_menu = self.create_option_menu("Response Format", "url", "url", "b64_json")
-        self.size_var, self.size_option_menu = self.create_option_menu("Size", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
-        self.style_var, self.style_option_menu = self.create_option_menu("Style", "vivid", "vivid", "natural")
-        self.user_entry = self.create_entry("User")
-        self.generate_button = self.create_button("Generate Image", self.generate_images)
+        
+        # Initial grid setup
+        self.root.grid_columnconfigure(1, weight=1)  # Allows the column 1 to expand and fill space
+        
+        # Widget creation with grid layout
+        self.prompt_text = self.create_text("Prompt:", 0)
+        self.model_var, self.model_option_menu = self.create_option_menu("Model:", "dall-e-2", ["dall-e-2", "dall-e-3"], row=1)
+        self.n_spinbox = self.create_spinbox("Number of Images:", 1, 10, "readonly", 2)
+        self.quality_var, self.quality_option_menu = self.create_option_menu("Quality:", "standard", ["standard", "hd"], row=3)
+        self.response_format_var, self.response_format_option_menu = self.create_option_menu("Response Format:", "url", ["url", "b64_json"], row=4)
+        self.size_var, self.size_option_menu = self.create_option_menu("Size:", "1024x1024", ["256x256", "512x512", "1024x1024", "1024x1792", "1792x1024"], row=5)
+        self.style_var, self.style_option_menu = self.create_option_menu("Style:", "vivid", ["vivid", "natural"], row=6)
+        self.user_entry = self.create_entry("User:", 7)
+        self.generate_button = self.create_button("Generate Image:", self.generate_images, 8)
         
         self.prompt_text.bind("<KeyRelease>", self.check_prompt)
         self.model_var.trace_add("write", self.update_gui_based_on_model)
         
         self.check_prompt()
         self.update_gui_based_on_model()
-    
-    def create_text(self, text):
-        tk.Label(self.root, text=text).pack()
-        text = tk.Text(self.root)
-        text.pack(pady=10)
+
+    def create_text(self, text, row):
+        tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
+        text = tk.Text(self.root, height=4, width=50)
+        text.grid(row=row, column=1, pady=10, sticky='ew', columnspan=2)
         return text
-    
-    def create_option_menu(self, text, default, *options):
-        tk.Label(self.root, text=text).pack()
+
+    def create_option_menu(self, text, default, options, row):
+        tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
         var = tk.StringVar(value=default)
         option_menu = tk.OptionMenu(self.root, var, *options)
-        option_menu.pack(pady=10)
+        option_menu.grid(row=row, column=1, pady=10, sticky='ew')
         return var, option_menu
 
-    def create_spinbox(self, text, from_, to, state):
-        tk.Label(self.root, text=text).pack()
-        spinbox = tk.Spinbox(self.root, from_=from_, to=to, state=state)
-        spinbox.pack(pady=10)
+    def create_spinbox(self, text, from_, to, state, row):
+        tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
+        spinbox = tk.Spinbox(self.root, from_=from_, to=to, state=state, width=15)
+        spinbox.grid(row=row, column=1, pady=10, sticky='w')
         return spinbox
 
-    def create_entry(self, text):
-        tk.Label(self.root, text=text).pack()
+    def create_entry(self, text, row):
+        tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
         entry = tk.Entry(self.root)
-        entry.pack(pady=10)
+        entry.grid(row=row, column=1, pady=10, sticky='ew')
         return entry
 
-    def create_button(self, text, command):
+    def create_button(self, text, command, row):
         button = tk.Button(self.root, text=text, command=command)
-        button.pack(pady=10)
+        button.grid(row=row, column=0, pady=10, columnspan=2, sticky='ew')
         return button
 
     def check_prompt(self, *event):
