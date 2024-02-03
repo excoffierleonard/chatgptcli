@@ -93,33 +93,38 @@ for arg in vars(args):
         cli_mode = True
         break
 
-def create_text(label):
-    tk.Label(root, text=f"{label}:").pack()
+def create_text(text):
+    tk.Label(root, text=text).pack()
     text = tk.Text(root)
-    text.pack()
+    text.pack(pady=10)
     return text
     
-def create_option_menu(label, default, *options):
-    tk.Label(root, text=f"{label}:").pack()
+def create_option_menu(text, default, *options):
+    tk.Label(root, text=text).pack()
     var = tk.StringVar(value=default)
     option_menu = tk.OptionMenu(root, var, *options)
-    option_menu.pack()
+    option_menu.pack(pady=10)
     return var, option_menu
 
-def create_spinbox(label, from_, to, state):
-    tk.Label(root, text=f"{label}:").pack()
+def create_spinbox(text, from_, to, state):
+    tk.Label(root, text=text).pack()
     spinbox = tk.Spinbox(root, from_=from_, to=to, state=state)
-    spinbox.pack()
+    spinbox.pack(pady=10)
     return spinbox
 
-def create_entry(label):
-    tk.Label(root, text=f"{label}:").pack()
+def create_entry(text):
+    tk.Label(root, text=text).pack()
     entry = tk.Entry(root)
-    entry.pack()
+    entry.pack(pady=10)
     return entry
 
+def create_button(text, command):
+    button = tk.Button(root, text=text, command=command)
+    button.pack(pady=10)
+    return button
+
 # Function to check the prompt and enable/disable the generate button
-def check_prompt(event):
+def check_prompt(*event):
     prompt_content = prompt_text.get("1.0", "end-1c").strip()
     if prompt_content:
         generate_button.config(state=tk.NORMAL)
@@ -190,10 +195,9 @@ else:
 
     user_entry = create_entry("User")
 
-    generate_button = tk.Button(root, text="Generate Image", command=gui)
-    generate_button.pack()
-    generate_button.config(state=tk.DISABLED)
-
+    generate_button = create_button("Generate Image", gui)
+    
+    check_prompt()
     update_gui_based_on_model()
 
     root.mainloop()
