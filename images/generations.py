@@ -23,40 +23,31 @@ def api(prompt, model, n, quality, response_format, size, style, user):
     )
     return response
 
-# CLI Function
-def cli(args):
-    result = api(
-        args.prompt,
-        args.model,
-        args.n,
-        args.quality,
-        args.response_format,
-        args.size,
-        args.style,
-        args.user
-    )
-    print(result)
+class CLI:
+    def run_cli():
+        parser = argparse.ArgumentParser(description='Generate images using OpenAI.')
+        parser.add_argument('-p', '--prompt', type=str, help='A text description of the desired image.')
+        parser.add_argument('-m', '--model', type=str, default='dall-e-2', choices=['dall-e-2', 'dall-e-3'], help='The model to use for image generation.')
+        parser.add_argument('-n', type=int, default=1, choices=range(1, 11), help='The number of images to generate.')
+        parser.add_argument('-q', '--quality', type=str, default='standard', choices=['standard', 'hd'], help='The quality of the image.')
+        parser.add_argument('-rf', '--response_format', type=str, default='url', choices=['url', 'b64_json'], help='The format in which the images are returned.')
+        parser.add_argument('-s', '--size', type=str, default='1024x1024', choices=['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'], help='The size of the generated images.')
+        parser.add_argument('-st', '--style', type=str, default='vivid', choices=['vivid', 'natural'], help='The style of the generated images.')
+        parser.add_argument('-u', '--user', type=str, default='', help='A unique identifier representing your end-user.')
 
-# Parse CLI Arguments
-parser = argparse.ArgumentParser(description='Generate images using OpenAI.')
+        args = parser.parse_args()
 
-parser.add_argument('-p', '--prompt', type=str, help='A text description of the desired image.')
-parser.add_argument('-m', '--model', type=str, default='dall-e-2', choices=['dall-e-2', 'dall-e-3'], help='The model to use for image generation.')
-parser.add_argument('-n', type=int, default=1, choices=range(1, 11), help='The number of images to generate.')
-parser.add_argument('-q', '--quality', type=str, default='standard', choices=['standard', 'hd'], help='The quality of the image.')
-parser.add_argument('-rf', '--response_format', type=str, default='url', choices=['url', 'b64_json'], help='The format in which the images are returned.')
-parser.add_argument('-s', '--size', type=str, default='1024x1024', choices=['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'], help='The size of the generated images.')
-parser.add_argument('-st', '--style', type=str, default='vivid', choices=['vivid', 'natural'], help='The style of the generated images.')
-parser.add_argument('-u', '--user', type=str, default='', help='A unique identifier representing your end-user.')
-
-args = parser.parse_args()
-
-# Check if any CLI argument is provided and different from default
-cli_mode = False
-for arg in vars(args):
-    if getattr(args, arg) is not None and getattr(args, arg) != parser.get_default(arg):
-        cli_mode = True
-        break
+        result = api(
+            args.prompt,
+            args.model,
+            args.n,
+            args.quality,
+            args.response_format,
+            args.size,
+            args.style,
+            args.user
+        )
+        print(result)
 
 class GUI:
     def __init__(self, root):
@@ -66,10 +57,8 @@ class GUI:
     def setup_gui(self):
         self.root.title("OpenAI Image Generator")
         
-        # Initial grid setup
-        self.root.grid_columnconfigure(1, weight=1)  # Allows the column 1 to expand and fill space
-        
-        # Widget creation with grid layout
+        self.root.grid_columnconfigure(1, weight=1)
+
         self.prompt_text = self.create_text("Prompt:", 0)
         self.model_var, self.model_option_menu = self.create_option_menu("Model:", "dall-e-2", ["dall-e-2", "dall-e-3"], row=1)
         self.n_spinbox = self.create_spinbox("Number of Images:", 1, 10, "readonly", 2)
@@ -200,7 +189,12 @@ class GUI:
         GUI(root)
         root.mainloop()
 
-if cli_mode:
-    cli(args)
-else:
-    GUI.run_gui()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('-p', '--prompt', type=str, nargs='?')
+    args, unknown = parser.parse_known_args()
+    
+    if args.prompt is not None:
+        CLI.run_cli()
+    else:
+        GUI.run_gui()
