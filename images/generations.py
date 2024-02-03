@@ -93,6 +93,12 @@ for arg in vars(args):
         cli_mode = True
         break
 
+def create_text(label):
+    tk.Label(root, text=f"{label}:").pack()
+    text = tk.Text(root)
+    text.pack()
+    return text
+    
 def create_option_menu(label, default, *options):
     tk.Label(root, text=f"{label}:").pack()
     var = tk.StringVar(value=default)
@@ -105,6 +111,12 @@ def create_spinbox(label, from_, to, state):
     spinbox = tk.Spinbox(root, from_=from_, to=to, state=state)
     spinbox.pack()
     return spinbox
+
+def create_entry(label):
+    tk.Label(root, text=f"{label}:").pack()
+    entry = tk.Entry(root)
+    entry.pack()
+    return entry
 
 # Function to check the prompt and enable/disable the generate button
 def check_prompt(event):
@@ -127,7 +139,7 @@ def update_gui_based_on_model(*args):
     style_option_menu['menu'].entryconfig("vivid", state="normal")
 
     if model == "dall-e-2":
-        n_spinbox.config(state="normal", values=tuple(range(1, 11)))
+        n_spinbox.config(values=tuple(range(1, 11)))
 
         quality_var.set("standard")
         quality_option_menu['menu'].entryconfig("hd", state="disabled")
@@ -142,7 +154,7 @@ def update_gui_based_on_model(*args):
         style_option_menu['menu'].entryconfig("natural", state="disabled")
 
     if model == "dall-e-3":
-        n_spinbox.config(state="readonly", value=(1))
+        n_spinbox.config(value=(1))
 
         quality_option_menu['menu'].entryconfig("hd", state="normal")
 
@@ -160,9 +172,7 @@ else:
     root = tk.Tk()
     root.title("OpenAI Image Generator")
 
-    tk.Label(root, text="Prompt:").pack()
-    prompt_text = tk.Text(root)
-    prompt_text.pack()
+    prompt_text = create_text("Prompt")
     prompt_text.bind("<KeyRelease>", check_prompt)
 
     model_var, model_option_menu = create_option_menu("Model", "dall-e-2", "dall-e-2", "dall-e-3")
@@ -178,9 +188,7 @@ else:
 
     style_var, style_option_menu = create_option_menu("Style", "vivid", "vivid", "natural")
 
-    tk.Label(root, text="User:").pack()
-    user_entry = tk.Entry(root)
-    user_entry.pack()
+    user_entry = create_entry("User")
 
     generate_button = tk.Button(root, text="Generate Image", command=gui)
     generate_button.pack()
