@@ -88,15 +88,15 @@ class GUI:
 
     def create_text(self, text, row):
         tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
-        text = tk.Text(self.root, height=4, width=50)
-        text.grid(row=row, column=1, pady=10, sticky='ew', columnspan=2)
+        text = tk.Text(self.root, height=10, width=50)
+        text.grid(row=row, column=1, pady=10, sticky='nsew', columnspan=2)
         return text
 
     def create_option_menu(self, text, default, options, row):
         tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
         var = tk.StringVar(value=default)
         option_menu = tk.OptionMenu(self.root, var, *options)
-        option_menu.grid(row=row, column=1, pady=10, sticky='ew')
+        option_menu.grid(row=row, column=1, pady=10, sticky='w')
         return var, option_menu
 
     def create_spinbox(self, text, from_, to, state, row):
@@ -108,12 +108,12 @@ class GUI:
     def create_entry(self, text, row):
         tk.Label(self.root, text=text).grid(row=row, column=0, sticky='e')
         entry = tk.Entry(self.root)
-        entry.grid(row=row, column=1, pady=10, sticky='ew')
+        entry.grid(row=row, column=1, pady=10, sticky='w')
         return entry
 
     def create_button(self, text, command, row):
         button = tk.Button(self.root, text=text, command=command)
-        button.grid(row=row, column=0, pady=10, columnspan=2, sticky='ew')
+        button.grid(row=row, column=0, pady=10, columnspan=2)
         return button
 
     def check_prompt(self, *event):
