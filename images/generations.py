@@ -58,140 +58,145 @@ for arg in vars(args):
         cli_mode = True
         break
 
-def create_text(root, text):
-    tk.Label(root, text=text).pack()
-    text = tk.Text(root)
-    text.pack(pady=10)
-    return text
+class GUI:
+    def __init__(self, root):
+        self.root = root
+        self.setup_gui()
+
+    def setup_gui(self):
+        self.root.title("OpenAI Image Generator")
+
+        self.prompt_text = self.create_text("Prompt")
+        self.model_var, self.model_option_menu = self.create_option_menu("Model", "dall-e-2", "dall-e-2", "dall-e-3")
+        self.n_spinbox = self.create_spinbox("Number of Images", 1, 10, "readonly")
+        self.quality_var, self.quality_option_menu = self.create_option_menu("Quality", "standard", "standard", "hd")
+        self.response_format_var, self.response_format_option_menu = self.create_option_menu("Response Format", "url", "url", "b64_json")
+        self.size_var, self.size_option_menu = self.create_option_menu("Size", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
+        self.style_var, self.style_option_menu = self.create_option_menu("Style", "vivid", "vivid", "natural")
+        self.user_entry = self.create_entry("User")
+        self.generate_button = self.create_button("Generate Image", self.generate_images)
+        
+        self.prompt_text.bind("<KeyRelease>", self.check_prompt)
+        self.model_var.trace_add("write", self.update_gui_based_on_model)
+        
+        self.check_prompt()
+        self.update_gui_based_on_model()
     
-def create_option_menu(root, text, default, *options):
-    tk.Label(root, text=text).pack()
-    var = tk.StringVar(value=default)
-    option_menu = tk.OptionMenu(root, var, *options)
-    option_menu.pack(pady=10)
-    return var, option_menu
+    def create_text(self, text):
+        tk.Label(self.root, text=text).pack()
+        text = tk.Text(self.root)
+        text.pack(pady=10)
+        return text
+    
+    def create_option_menu(self, text, default, *options):
+        tk.Label(self.root, text=text).pack()
+        var = tk.StringVar(value=default)
+        option_menu = tk.OptionMenu(self.root, var, *options)
+        option_menu.pack(pady=10)
+        return var, option_menu
 
-def create_spinbox(root, text, from_, to, state):
-    tk.Label(root, text=text).pack()
-    spinbox = tk.Spinbox(root, from_=from_, to=to, state=state)
-    spinbox.pack(pady=10)
-    return spinbox
+    def create_spinbox(self, text, from_, to, state):
+        tk.Label(self.root, text=text).pack()
+        spinbox = tk.Spinbox(self.root, from_=from_, to=to, state=state)
+        spinbox.pack(pady=10)
+        return spinbox
 
-def create_entry(root, text):
-    tk.Label(root, text=text).pack()
-    entry = tk.Entry(root)
-    entry.pack(pady=10)
-    return entry
+    def create_entry(self, text):
+        tk.Label(self.root, text=text).pack()
+        entry = tk.Entry(self.root)
+        entry.pack(pady=10)
+        return entry
 
-def create_button(root, text, command):
-    button = tk.Button(root, text=text, command=command)
-    button.pack(pady=10)
-    return button
+    def create_button(self, text, command):
+        button = tk.Button(self.root, text=text, command=command)
+        button.pack(pady=10)
+        return button
 
-# Function to check the prompt and enable/disable the generate button
-def check_prompt(prompt_text, generate_button):
-    prompt_content = prompt_text.get("1.0", "end-1c").strip()
-    if prompt_content:
-        generate_button.config(state=tk.NORMAL)
-    else:
-        generate_button.config(state=tk.DISABLED)
-
-# Function to handle model selection changes and restrict n=1 if DALL-E 3 is chosen
-def update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_menu, response_format_var, response_format_option_menu, size_var, size_option_menu, style_var, style_option_menu):
-    model = model_var.get()
-
-    quality_option_menu['menu'].entryconfig("standard", state="normal")
-    response_format_var.set("url")
-    response_format_option_menu['menu'].entryconfig("url", state="normal")
-    response_format_option_menu['menu'].entryconfig("b64_json", state="disabled")
-    size_var.set("1024x1024")
-    size_option_menu['menu'].entryconfig("1024x1024", state="normal")
-    style_option_menu['menu'].entryconfig("vivid", state="normal")
-
-    if model == "dall-e-2":
-        n_spinbox.config(values=tuple(range(1, 11)))
-
-        quality_var.set("standard")
-        quality_option_menu['menu'].entryconfig("hd", state="disabled")
-
-        size_option_menu['menu'].entryconfig("256x256", state="normal")
-        size_option_menu['menu'].entryconfig("512x512", state="normal")
-        size_option_menu['menu'].entryconfig("1024x1792", state="disabled")
-        size_option_menu['menu'].entryconfig("1792x1024", state="disabled")
-
-        style_var.set("vivid")
-
-        style_option_menu['menu'].entryconfig("natural", state="disabled")
-
-    if model == "dall-e-3":
-        n_spinbox.config(value=(1))
-
-        quality_option_menu['menu'].entryconfig("hd", state="normal")
-
-        size_option_menu['menu'].entryconfig("256x256", state="disabled")
-        size_option_menu['menu'].entryconfig("512x512", state="disabled")
-        size_option_menu['menu'].entryconfig("1024x1792", state="normal")
-        size_option_menu['menu'].entryconfig("1792x1024", state="normal")
-
-        style_option_menu['menu'].entryconfig("natural", state="normal")
-
-def gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry):
-    try:
-        result = api(
-            prompt_text.get("1.0", "end-1c"),
-            model_var.get(),
-            int(n_spinbox.get()),
-            quality_var.get(),
-            response_format_var.get(),
-            size_var.get(),
-            style_var.get(),
-            user_entry.get()
-        )
-
-        urls = []
-        revised_prompts = []
-
-        for item in result.data:
-            urls.append(item.url)
-            if hasattr(item, 'revised_prompt') and item.revised_prompt:
-                revised_prompts.append(item.revised_prompt)
-
-        for url in urls:
-            webbrowser.open(url)
-
-        if revised_prompts:
-            all_revised_prompts = "\n\n".join(revised_prompts)
-            messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
+    def check_prompt(self, *event):
+        prompt_content = self.prompt_text.get("1.0", "end-1c").strip()
+        if prompt_content:
+            self.generate_button.config(state=tk.NORMAL)
         else:
-            prompt = prompt_text.get("1.0", "end-1c")
-            messagebox.showinfo("Success", f"Image(s) generated successfully.\n\nPrompt:\n\n{prompt}")
+            self.generate_button.config(state=tk.DISABLED)
 
-    except Exception as e:
-        messagebox.showerror("Error", e)
+    def update_gui_based_on_model(self, *args):
+        model = self.model_var.get()
 
-def run_gui():
-    root = tk.Tk()
-    root.title("OpenAI Image Generator")
+        self.quality_option_menu['menu'].entryconfig("standard", state="normal")
+        self.response_format_var.set("url")
+        self.response_format_option_menu['menu'].entryconfig("url", state="normal")
+        self.response_format_option_menu['menu'].entryconfig("b64_json", state="disabled")
+        self.size_var.set("1024x1024")
+        self.size_option_menu['menu'].entryconfig("1024x1024", state="normal")
+        self.style_option_menu['menu'].entryconfig("vivid", state="normal")
 
-    prompt_text = create_text(root, "Prompt")
-    model_var, model_option_menu = create_option_menu(root, "Model", "dall-e-2", "dall-e-2", "dall-e-3")
-    n_spinbox = create_spinbox(root, "Number of Images", 1, 10, "readonly")
-    quality_var, quality_option_menu = create_option_menu(root, "Quality", "standard", "standard", "hd")
-    response_format_var, response_format_option_menu = create_option_menu(root, "Response Format", "url", "url", "b64_json")
-    size_var, size_option_menu = create_option_menu(root, "Size", "1024x1024", "256x256", "512x512", "1024x1024", "1024x1792", "1792x1024")
-    style_var, style_option_menu = create_option_menu(root, "Style", "vivid", "vivid", "natural")
-    user_entry = create_entry(root, "User")
-    generate_button = create_button(root, "Generate Image", lambda: gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry))
+        if model == "dall-e-2":
+            self.n_spinbox.config(values=tuple(range(1, 11)))
+
+            self.quality_var.set("standard")
+            self.quality_option_menu['menu'].entryconfig("hd", state="disabled")
+
+            self.size_option_menu['menu'].entryconfig("256x256", state="normal")
+            self.size_option_menu['menu'].entryconfig("512x512", state="normal")
+            self.size_option_menu['menu'].entryconfig("1024x1792", state="disabled")
+            self.size_option_menu['menu'].entryconfig("1792x1024", state="disabled")
+
+            self.style_var.set("vivid")
+
+            self.style_option_menu['menu'].entryconfig("natural", state="disabled")
+
+        if model == "dall-e-3":
+            self.n_spinbox.config(value=(1))
+
+            self.quality_option_menu['menu'].entryconfig("hd", state="normal")
+
+            self.size_option_menu['menu'].entryconfig("256x256", state="disabled")
+            self.size_option_menu['menu'].entryconfig("512x512", state="disabled")
+            self.size_option_menu['menu'].entryconfig("1024x1792", state="normal")
+            self.size_option_menu['menu'].entryconfig("1792x1024", state="normal")
+
+            self.style_option_menu['menu'].entryconfig("natural", state="normal")
     
-    prompt_text.bind("<KeyRelease>", lambda event: check_prompt(prompt_text, generate_button))
-    model_var.trace_add("write", lambda *args: update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_menu, response_format_var, response_format_option_menu, size_var, size_option_menu, style_var, style_option_menu))
-    check_prompt(prompt_text, generate_button)
-    update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_menu, response_format_var, response_format_option_menu, size_var, size_option_menu, style_var, style_option_menu)
+    def generate_images(self):
+        try:
+            result = api(
+                self.prompt_text.get("1.0", "end-1c"),
+                self.model_var.get(),
+                int(self.n_spinbox.get()),
+                self.quality_var.get(),
+                self.response_format_var.get(),
+                self.size_var.get(),
+                self.style_var.get(),
+                self.user_entry.get()
+            )
 
-    root.mainloop()
+            urls = []
+            revised_prompts = []
 
-# Check if any arguments were provided for CLI mode
+            for item in result.data:
+                urls.append(item.url)
+                if hasattr(item, 'revised_prompt') and item.revised_prompt:
+                    revised_prompts.append(item.revised_prompt)
+
+            for url in urls:
+                webbrowser.open(url)
+
+            if revised_prompts:
+                all_revised_prompts = "\n\n".join(revised_prompts)
+                messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
+            else:
+                prompt = self.prompt_text.get("1.0", "end-1c")
+                messagebox.showinfo("Success", f"Image(s) generated successfully.\n\nPrompt:\n\n{prompt}")
+
+        except Exception as e:
+            messagebox.showerror("Error", e)
+
+    def run_gui():
+        root = tk.Tk()
+        GUI(root)
+        root.mainloop()
+
 if cli_mode:
     cli(args)
 else:
-    run_gui()
+    GUI.run_gui()
