@@ -1,13 +1,13 @@
-import sys
 import argparse
+import os
+import sys
+import webbrowser
 import tkinter as tk
 from tkinter import messagebox
-import webbrowser
-import os
+
 import openai
 from openai import OpenAI
 
-# Function to generate the image using the OpenAI API
 def api(prompt, model, n, quality, response_format, size, style, user):
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
     client = OpenAI(api_key=OPENAI_API_KEY)
@@ -190,8 +190,17 @@ class GUI:
         GUI(root)
         root.mainloop()
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) > 1:
-        CLI.run_cli()
+        try:
+            CLI.run_cli()
+        except Exception as e:
+            print(f"Failed to start CLI mode: {e}")
     else:
-        GUI.run_gui()
+        try:
+            GUI.run_gui()
+        except Exception as e:
+            print(f"Failed to start GUI mode: {e}")
+
+if __name__ == "__main__":
+    main()
