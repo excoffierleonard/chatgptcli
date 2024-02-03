@@ -1,3 +1,4 @@
+import sys
 import argparse
 import tkinter as tk
 from tkinter import messagebox
@@ -190,11 +191,7 @@ class GUI:
         root.mainloop()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('-p', '--prompt', type=str, nargs='?')
-    args, unknown = parser.parse_known_args()
-    
-    if args.prompt is not None:
+    if len(sys.argv) > 1:
         CLI.run_cli()
     else:
         GUI.run_gui()
