@@ -24,7 +24,7 @@ def api(prompt, model, n, quality, response_format, size, style, user):
     return response
 
 # GUI Function
-def gui():
+def gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry):
     try:
         result = api(
             prompt_text.get("1.0", "end-1c"),
@@ -175,10 +175,10 @@ def run_gui():
     root.title("OpenAI Image Generator")
 
     prompt_text = create_text(root, "Prompt")
-    prompt_text.bind("<KeyRelease>", lambda event: check_prompt(prompt_text, generate_button))
+    
 
     model_var, model_option_menu = create_option_menu(root, "Model", "dall-e-2", "dall-e-2", "dall-e-3")
-    model_var.trace_add("write", lambda *args: update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_menu, response_format_var, response_format_option_menu, size_var, size_option_menu, style_var, style_option_menu))
+    
 
     n_spinbox = create_spinbox(root, "Number of Images", 1, 10, "readonly")
 
@@ -192,8 +192,10 @@ def run_gui():
 
     user_entry = create_entry(root, "User")
 
-    generate_button = create_button(root, "Generate Image", lambda: gui(api, prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry))
-
+    generate_button = create_button(root, "Generate Image", lambda: gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry))
+    
+    prompt_text.bind("<KeyRelease>", lambda event: check_prompt(prompt_text, generate_button))
+    model_var.trace_add("write", lambda *args: update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_menu, response_format_var, response_format_option_menu, size_var, size_option_menu, style_var, style_option_menu))
     check_prompt(prompt_text, generate_button)
     update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_menu, response_format_var, response_format_option_menu, size_var, size_option_menu, style_var, style_option_menu)
 
