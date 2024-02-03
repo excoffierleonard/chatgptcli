@@ -23,41 +23,6 @@ def api(prompt, model, n, quality, response_format, size, style, user):
     )
     return response
 
-# GUI Function
-def gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry):
-    try:
-        result = api(
-            prompt_text.get("1.0", "end-1c"),
-            model_var.get(),
-            int(n_spinbox.get()),
-            quality_var.get(),
-            response_format_var.get(),
-            size_var.get(),
-            style_var.get(),
-            user_entry.get()
-        )
-
-        urls = []
-        revised_prompts = []
-
-        for item in result.data:
-            urls.append(item.url)
-            if hasattr(item, 'revised_prompt') and item.revised_prompt:
-                revised_prompts.append(item.revised_prompt)
-
-        for url in urls:
-            webbrowser.open(url)
-
-        if revised_prompts:
-            all_revised_prompts = "\n\n".join(revised_prompts)
-            messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
-        else:
-            prompt = prompt_text.get("1.0", "end-1c")
-            messagebox.showinfo("Success", f"Image(s) generated successfully.\n\nPrompt:\n\n{prompt}")
-
-    except Exception as e:
-        messagebox.showerror("Error", e)
-
 # CLI Function
 def cli(args):
     result = api(
@@ -169,6 +134,40 @@ def update_gui_based_on_model(model_var, n_spinbox, quality_var, quality_option_
         size_option_menu['menu'].entryconfig("1792x1024", state="normal")
 
         style_option_menu['menu'].entryconfig("natural", state="normal")
+
+def gui(prompt_text, model_var, n_spinbox, quality_var, response_format_var, size_var, style_var, user_entry):
+    try:
+        result = api(
+            prompt_text.get("1.0", "end-1c"),
+            model_var.get(),
+            int(n_spinbox.get()),
+            quality_var.get(),
+            response_format_var.get(),
+            size_var.get(),
+            style_var.get(),
+            user_entry.get()
+        )
+
+        urls = []
+        revised_prompts = []
+
+        for item in result.data:
+            urls.append(item.url)
+            if hasattr(item, 'revised_prompt') and item.revised_prompt:
+                revised_prompts.append(item.revised_prompt)
+
+        for url in urls:
+            webbrowser.open(url)
+
+        if revised_prompts:
+            all_revised_prompts = "\n\n".join(revised_prompts)
+            messagebox.showinfo("Success", f"Image(s) generated successfully. \n\nRevised prompt(s):\n\n{all_revised_prompts}")
+        else:
+            prompt = prompt_text.get("1.0", "end-1c")
+            messagebox.showinfo("Success", f"Image(s) generated successfully.\n\nPrompt:\n\n{prompt}")
+
+    except Exception as e:
+        messagebox.showerror("Error", e)
 
 def run_gui():
     root = tk.Tk()
