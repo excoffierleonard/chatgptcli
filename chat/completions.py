@@ -72,8 +72,12 @@ def chat_with_gpt(settings):
             print()
 
 def main():
-    if __name__ == "__main__":
-      settings = load_settings()
-      chat_with_gpt(settings)
-  
-main()
+    settings = load_settings()
+    print()
+    print("Current settings:")
+    for key, value in settings.items():
+        print(f"{key}: {value}")
+    chat_with_gpt(settings)
+
+if __name__ == "__main__":
+    main()
