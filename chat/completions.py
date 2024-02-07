@@ -8,23 +8,23 @@ def load_settings():
         print("Settings file not found, creating a default settings file.")
         os.makedirs(os.path.dirname(config_path), exist_ok=True)
         default_settings = {
-          "model": "gpt-4",
-          "frequency_penalty": None,
-          "logit_bias": None,
-          "logprobs": None,
-          "top_logprobs": None,
-          "max_tokens": None,
-          "n": None,
-          "presence_penalty": None,
-          "response_format": None,
-          "seed": None,
-          "stop": None,
-          "stream": None,
-          "temperature": None,
-          "top_p": None,
-          "tools": None,
-          "tool_choice": None,
-          "user": None
+            "model": "gpt-4",
+            "frequency_penalty": None,
+            "logit_bias": None,
+            "logprobs": None,
+            "top_logprobs": None,
+            "max_tokens": None,
+            "n": None,
+            "presence_penalty": None,
+            "response_format": None,
+            "seed": None,
+            "stop": None,
+            "stream": None,
+            "temperature": None,
+            "top_p": None,
+            "tools": None,
+            "tool_choice": None,
+            "user": None
         }
         with open(config_path, 'w') as config_file:
             json.dump(default_settings, config_file, indent=4)
@@ -39,21 +39,42 @@ def chat_with_gpt(settings):
     chat_history = []
 
     while True:
+        print()
         user_input = input("You: ")
+        print()
         if user_input.lower() == 'exit':
             break
 
         messages = chat_history + [{"role": "user", "content": user_input}]
         response = client.chat.completions.create(
             messages=messages,
-            **settings  # Unpack settings as additional keyword arguments
+            **settings
         )
 
-        chat_history.append({"role": "user", "content": user_input})
-        chat_response = response.choices[0].message.content
-        print("GPT: ", chat_response)
-        chat_history.append({"role": "system", "content": chat_response})
+        if settings.get("stream", False):
+            streamed_response_content = ""
+            first_chunk = True
+            for chunk in response:
+                if chunk.choices[0].delta.content is not None:
+                    content = chunk.choices[0].delta.content
+                    if first_chunk:
+                        print("GPT: ", end="")
+                        first_chunk = False
+                    print(content, end="")
+                    streamed_response_content += content
+            if streamed_response_content:
+                chat_history.append({"role": "system", "content": streamed_response_content})
+            print() 
+        else:
+            print("GPT: ", end="")
+            chat_response = response.choices[0].message.content
+            print(chat_response)
+            chat_history.append({"role": "system", "content": chat_response})
+            print()
 
-if __name__ == "__main__":
-    settings = load_settings()
-    chat_with_gpt(settings)
+def main():
+    if __name__ == "__main__":
+      settings = load_settings()
+      chat_with_gpt(settings)
+  
+main()
