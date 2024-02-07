@@ -39,8 +39,7 @@ def chat_with_gpt(settings):
     chat_history = []
 
     while True:
-        print()
-        user_input = input("You: ")
+        user_input = input("\nYou: ")
         print()
         if user_input.lower() == 'exit':
             break
