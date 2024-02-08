@@ -16,4 +16,4 @@ transcript = client.audio.transcriptions.create(
   temperature=0.0
 )
 
-print(transcript)
+print(transcript.text)
