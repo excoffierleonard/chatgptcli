@@ -1,6 +1,9 @@
 import os
 import json
+
 from openai import OpenAI
+from prompt_toolkit import PromptSession
+from prompt_toolkit.key_binding import KeyBindings
 
 def load_settings():
     config_path = os.path.join(os.path.expanduser('~'), '.gpt', 'settings.json')
@@ -34,15 +37,30 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
+def multiline_input(prompt_text='Enter/Paste your code (Ctrl-P to finish): '):
+    session = PromptSession()
+    bindings = KeyBindings()
+
+    # To send the input with Ctrl+P
+    @bindings.add('c-p')
+    def _(event):
+        event.app.exit(result=session.default_buffer.document.text)
+
+    try:
+        # Using prompt session for multiline input
+        text = session.prompt(prompt_text, multiline=True, key_bindings=bindings)
+    except EOFError:
+        return text
+
+    return text
+
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     chat_history = []
 
     while True:
-        user_input = input("\nYou:\n")
+        user_input = multiline_input()
         print()
-        if user_input.lower() == 'exit':
-            break
 
         messages = chat_history + [{"role": "user", "content": user_input}]
         response = client.chat.completions.create(
