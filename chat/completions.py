@@ -37,7 +37,7 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
-def print_colored(text, color):
+def print_colored(text, color, end="\n"):
     colors = {
         "white": "\033[97m",
         "red": "\033[91m",
@@ -49,9 +49,9 @@ def print_colored(text, color):
     }
     end_color = "\033[0m"
     if color in colors:
-        print(f"{colors[color]}{text}{end_color}")
+        print(f"{colors[color]}{text}{end_color}", end=end)
     else:
-        print(text)
+        print(text, end=end)
 
 def multiline_input(prompt_text='\nYou:'):
     session = PromptSession()
@@ -61,7 +61,7 @@ def multiline_input(prompt_text='\nYou:'):
     def _(event):
         event.app.exit(result=session.default_buffer.document.text)
 
-    print_colored(prompt_text, "green")
+    print_colored(prompt_text, "cyan")
     text = session.prompt('', multiline=True, key_bindings=bindings)
     return text
 
@@ -103,7 +103,11 @@ def main():
         settings = load_settings()
         print("Welcome to ChatGPT, How can I help you today? \nCurrent settings:\n")
         for key, value in settings.items():
-            print(f"{key}: {value}")
+            print_colored(f"{key}: ", "yellow", end="")
+            if value is not None:
+                print_colored(value, "green")
+            else:
+                print(value)
         print("\n(Ctrl+P to send prompt.)")
         chat_with_gpt(settings)
     except KeyboardInterrupt:
