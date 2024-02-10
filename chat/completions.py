@@ -39,20 +39,8 @@ def chat_with_gpt(settings):
     chat_history = []
 
     while True:
-        print("\nYou (press Enter twice to submit): ")
+        user_input = input("\nYou: ")
         print()
-        user_input_lines = []
-        while True:
-            line = input()
-            if line == "":
-                if user_input_lines:
-                    break
-                else:
-                    continue
-            user_input_lines.append(line)
-        user_input = "\n".join(user_input_lines)
-        print()
-
         if user_input.lower() == 'exit':
             break
 
