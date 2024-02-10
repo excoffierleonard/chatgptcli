@@ -37,21 +37,15 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
-def multiline_input(prompt_text='Enter/Paste your code (Ctrl-P to finish): '):
+def multiline_input(prompt_text='\nYou:\n'):
     session = PromptSession()
     bindings = KeyBindings()
 
-    # To send the input with Ctrl+P
     @bindings.add('c-p')
     def _(event):
         event.app.exit(result=session.default_buffer.document.text)
 
-    try:
-        # Using prompt session for multiline input
-        text = session.prompt(prompt_text, multiline=True, key_bindings=bindings)
-    except EOFError:
-        return text
-
+    text = session.prompt(prompt_text, multiline=True, key_bindings=bindings)
     return text
 
 def chat_with_gpt(settings):
@@ -92,9 +86,10 @@ def chat_with_gpt(settings):
 def main():
     settings = load_settings()
     print()
-    print("Current settings:")
+    print("Current settings:\n")
     for key, value in settings.items():
         print(f"{key}: {value}")
+    print("\n(Ctrl-P to send prompt)")
     chat_with_gpt(settings)
 
 if __name__ == "__main__":
