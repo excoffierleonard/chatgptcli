@@ -101,7 +101,7 @@ def chat_with_gpt(settings):
 def main():
     try:
         settings = load_settings()
-        print("Welcome to ChatGPT, How can I help you today? \nCurrent settings:\n")
+        print_colored("Welcome to ChatGPT, How can I help you today? \n\nCurrent settings:", "blue")
         for key, value in settings.items():
             print_colored(f"{key}: ", "yellow", end="")
             if value is not None:
@@ -111,9 +111,9 @@ def main():
         print("\n(Ctrl+P to send prompt.)")
         chat_with_gpt(settings)
     except KeyboardInterrupt:
-        print("Exiting program. Goodbye!")
+        print_colored("\nExiting program. Goodbye!", "red")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print_colored(f"\nAn unexpected error occurred: {e}", "red")
 
 if __name__ == "__main__":
     main()
