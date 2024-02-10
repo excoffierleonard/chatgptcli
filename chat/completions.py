@@ -68,18 +68,18 @@ def chat_with_gpt(settings):
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     if first_chunk:
-                        print("\nGPT:")
+                        print("\nChatGPT:")
                         first_chunk = False
                     print(content, end="")
                     streamed_response_content += content
             if streamed_response_content:
                 chat_history.append({"role": "system", "content": streamed_response_content})
+            print()
         else:
-            print("\nGPT:\n")
+            print("\nChatGPT:")
             chat_response = response.choices[0].message.content
             print(chat_response)
             chat_history.append({"role": "system", "content": chat_response})
-        print()
 
 def main():
     try:
@@ -87,7 +87,7 @@ def main():
         print("Welcome to ChatGPT, How can I help you today? \nCurrent settings:\n")
         for key, value in settings.items():
             print(f"{key}: {value}")
-        print("\n(Ctrl-P to send prompt)")
+        print("\n(Ctrl+P to send prompt.)")
         chat_with_gpt(settings)
     except KeyboardInterrupt:
         print("Exiting program. Goodbye!")
