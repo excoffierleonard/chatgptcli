@@ -54,7 +54,6 @@ def chat_with_gpt(settings):
 
     while True:
         user_input = multiline_input()
-        print()
 
         messages = chat_history + [{"role": "user", "content": user_input}]
         response = client.chat.completions.create(
@@ -69,28 +68,31 @@ def chat_with_gpt(settings):
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     if first_chunk:
-                        print("GPT:")
+                        print("\nGPT:")
                         first_chunk = False
                     print(content, end="")
                     streamed_response_content += content
             if streamed_response_content:
                 chat_history.append({"role": "system", "content": streamed_response_content})
-            print()
         else:
-            print("GPT:")
+            print("\nGPT:\n")
             chat_response = response.choices[0].message.content
             print(chat_response)
             chat_history.append({"role": "system", "content": chat_response})
-            print()
+        print()
 
 def main():
-    settings = load_settings()
-    print()
-    print("Current settings:\n")
-    for key, value in settings.items():
-        print(f"{key}: {value}")
-    print("\n(Ctrl-P to send prompt)")
-    chat_with_gpt(settings)
+    try:
+        settings = load_settings()
+        print("Welcome to ChatGPT, How can I help you today? \nCurrent settings:\n")
+        for key, value in settings.items():
+            print(f"{key}: {value}")
+        print("\n(Ctrl-P to send prompt)")
+        chat_with_gpt(settings)
+    except KeyboardInterrupt:
+        print("Exiting program. Goodbye!")
+    except:
+        print("An error has occured. Exiting program.")
 
 if __name__ == "__main__":
     main()
