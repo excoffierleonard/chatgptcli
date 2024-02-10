@@ -37,7 +37,23 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
-def multiline_input(prompt_text='\nYou:\n'):
+def print_colored(text, color):
+    colors = {
+        "white": "\033[97m",
+        "red": "\033[91m",
+        "green": "\033[92m",
+        "blue": "\033[94m",
+        "magenta": "\033[95m",
+        "yellow": "\033[93m",
+        "cyan": "\033[96m",
+    }
+    end_color = "\033[0m"
+    if color in colors:
+        print(f"{colors[color]}{text}{end_color}")
+    else:
+        print(text)
+
+def multiline_input(prompt_text='\nYou:'):
     session = PromptSession()
     bindings = KeyBindings()
 
@@ -45,7 +61,8 @@ def multiline_input(prompt_text='\nYou:\n'):
     def _(event):
         event.app.exit(result=session.default_buffer.document.text)
 
-    text = session.prompt(prompt_text, multiline=True, key_bindings=bindings)
+    print_colored(prompt_text, "green")
+    text = session.prompt('', multiline=True, key_bindings=bindings)
     return text
 
 def chat_with_gpt(settings):
@@ -68,7 +85,7 @@ def chat_with_gpt(settings):
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     if first_chunk:
-                        print("\nChatGPT:")
+                        print_colored("\nChatGPT:", "blue")
                         first_chunk = False
                     print(content, end="")
                     streamed_response_content += content
@@ -76,7 +93,7 @@ def chat_with_gpt(settings):
                 chat_history.append({"role": "system", "content": streamed_response_content})
             print()
         else:
-            print("\nChatGPT:")
+            print_colored("\nChatGPT:", "blue")
             chat_response = response.choices[0].message.content
             print(chat_response)
             chat_history.append({"role": "system", "content": chat_response})
@@ -91,8 +108,8 @@ def main():
         chat_with_gpt(settings)
     except KeyboardInterrupt:
         print("Exiting program. Goodbye!")
-    except:
-        print("An error has occured. Exiting program.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
     main()
