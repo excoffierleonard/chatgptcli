@@ -39,7 +39,7 @@ def chat_with_gpt(settings):
     chat_history = []
 
     while True:
-        user_input = input("\nYou: ")
+        user_input = input("\nYou:\n")
         print()
         if user_input.lower() == 'exit':
             break
@@ -57,15 +57,15 @@ def chat_with_gpt(settings):
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     if first_chunk:
-                        print("GPT: ", end="")
+                        print("GPT:")
                         first_chunk = False
                     print(content, end="")
                     streamed_response_content += content
             if streamed_response_content:
                 chat_history.append({"role": "system", "content": streamed_response_content})
-            print() 
+            print()
         else:
-            print("GPT: ", end="")
+            print("GPT:")
             chat_response = response.choices[0].message.content
             print(chat_response)
             chat_history.append({"role": "system", "content": chat_response})
