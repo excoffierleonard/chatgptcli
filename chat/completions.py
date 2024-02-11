@@ -7,7 +7,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from datetime import datetime
 
 def load_settings():
-    config_path = os.path.join(os.path.expanduser('~'), '.gpt', 'settings.json')
+    config_path = os.path.join(os.path.expanduser('~'), '.chatgpt', 'settings.json')
     if not os.path.exists(config_path):
         print("Settings file not found, creating a default settings file.")
         os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -41,7 +41,7 @@ def load_settings():
 def save_chat_history(chat_history):
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     filename = f"chat_history_{timestamp}.json"
-    log_folder = os.path.join(os.path.expanduser('~'), '.gpt', 'log')
+    log_folder = os.path.join(os.path.expanduser('~'), '.chatgpt', 'log')
     if not os.path.exists(log_folder):
         os.makedirs(log_folder)
     save_path = os.path.join(log_folder, filename)
