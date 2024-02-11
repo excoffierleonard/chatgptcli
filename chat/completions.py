@@ -53,7 +53,7 @@ def print_colored(text, color, end="\n"):
     else:
         print(text, end=end)
 
-def multiline_input(prompt_text='\nYou:'):
+def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     session = PromptSession()
     bindings = KeyBindings()
 
@@ -61,7 +61,7 @@ def multiline_input(prompt_text='\nYou:'):
     def _(event):
         event.app.exit(result=session.default_buffer.document.text)
 
-    print_colored(prompt_text, "cyan")
+    print(prompt_text)
     text = session.prompt('', multiline=True, key_bindings=bindings)
     return text
 
@@ -72,48 +72,45 @@ def chat_with_gpt(settings):
     while True:
         user_input = multiline_input()
 
-        messages = chat_history + [{"role": "user", "content": user_input}]
+        chat_history.append({"role": "user", "content": user_input})
+        messages = chat_history
         response = client.chat.completions.create(
             messages=messages,
             **settings
         )
 
+        print("\033[94m\nChatGPT:\033[0m")
         if settings.get("stream", False):
             streamed_response_content = ""
-            first_chunk = True
             for chunk in response:
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
-                    if first_chunk:
-                        print_colored("\nChatGPT:", "blue")
-                        first_chunk = False
                     print(content, end="", flush=True)
                     streamed_response_content += content
             if streamed_response_content:
                 chat_history.append({"role": "system", "content": streamed_response_content})
             print()
         else:
-            print_colored("\nChatGPT:", "blue")
-            chat_response = response.choices[0].message.content
-            print(chat_response)
-            chat_history.append({"role": "system", "content": chat_response})
+            content = response.choices[0].message.content
+            print(content)
+            chat_history.append({"role": "system", "content": content})
 
 def main():
     try:
         settings = load_settings()
-        print_colored("Welcome to ChatGPT, How can I help you today? \n\nCurrent settings:", "blue")
+        print("\033[94mWelcome to ChatGPT, How can I help you today? \n\nCurrent settings:\033[0m")
         for key, value in settings.items():
-            print_colored(f"{key}: ", "yellow", end="")
+            print(f"\033[93m{key}:\033[0m ", end="")
             if value is not None:
-                print_colored(value, "green")
+                print(f"\033[92m{value}\033[0m")
             else:
                 print(value)
-        print("\n(Ctrl+P to send prompt.)")
+        print("\033[94m\n(Ctrl+P to send prompt.)\033[0m")
         chat_with_gpt(settings)
     except KeyboardInterrupt:
-        print_colored("\nExiting program. Goodbye!", "red")
+        print("\033[91m\nExiting program. Goodbye!\033[0m")
     except Exception as e:
-        print_colored(f"\nAn unexpected error occurred: {e}", "red")
+        print(f"\033[91m\nAn unexpected error occurred: {e}\033[0m")
 
 if __name__ == "__main__":
     main()
