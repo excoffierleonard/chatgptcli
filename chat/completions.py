@@ -5,6 +5,8 @@ from datetime import datetime
 from openai import OpenAI
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
+from rich.console import Console
+from rich.markdown import Markdown
 
 def load_settings():
     config_path = os.path.join(os.path.expanduser('~'), '.chatgpt', 'settings.json')
@@ -64,6 +66,7 @@ def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
 
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+    console = Console()
     chat_history = []
 
     try:
@@ -90,7 +93,7 @@ def chat_with_gpt(settings):
                 print()
             else:
                 content = response.choices[0].message.content
-                print(content)
+                console.print(Markdown(content))
                 chat_history.append({"role": "system", "content": content})
     finally:
         if chat_history:
