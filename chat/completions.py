@@ -90,7 +90,8 @@ def chat_with_gpt(settings):
                         print(content, end="", flush=True)
                 if streamed_response_content:
                     chat_history.append({"role": "system", "content": streamed_response_content})
-                    print()
+                    console.clear()
+                    console.print(Markdown(streamed_response_content))
             else:
                 content = response.choices[0].message.content
                 console.print(Markdown(content))
