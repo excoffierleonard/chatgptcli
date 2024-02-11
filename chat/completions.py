@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from datetime import datetime
 from openai import OpenAI
@@ -90,7 +91,7 @@ def chat_with_gpt(settings):
                         print(content, end="", flush=True)
                 if streamed_response_content:
                     chat_history.append({"role": "system", "content": streamed_response_content})
-                print()
+                    print()
             else:
                 content = response.choices[0].message.content
                 console.print(Markdown(content))
