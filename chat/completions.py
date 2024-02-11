@@ -47,7 +47,7 @@ def save_chat_history(chat_history):
     save_path = os.path.join(log_folder, filename)
     with open(save_path, 'w') as file:
         json.dump(chat_history, file, indent=4)
-    print(f"\033[92mChat history saved to: {save_path}\033[0m")
+    print(f"\033[94mChat history saved to: \033[92m{save_path}\033[0m")
 
 def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     session = PromptSession()
