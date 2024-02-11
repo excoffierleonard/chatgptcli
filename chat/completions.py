@@ -6,7 +6,6 @@ from openai import OpenAI
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 
-
 def load_settings():
     config_path = os.path.join(os.path.expanduser('~'), '.chatgpt', 'settings.json')
     if not os.path.exists(config_path):
@@ -44,12 +43,12 @@ def save_chat_history(chat_history):
     filename = f"chat_history_{timestamp}.json"
     log_folder = os.path.join(os.path.expanduser('~'), '.chatgpt', 'log')
     if not os.path.exists(log_folder):
-        print("\033[94mLog folder not found, creating a log folder...\033[0m")
+        print("\033[94\nmLog folder not found, creating a log folder...\033[0m")
         os.makedirs(log_folder)
     save_path = os.path.join(log_folder, filename)
     with open(save_path, 'w') as file:
         json.dump(chat_history, file, indent=4)
-    print(f"\033[94mChat history saved to: \033[92m{save_path}\033[0m")
+    print(f"\033[94m\nChat history saved to: \033[92m{save_path}\033[0m")
 
 def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     session = PromptSession()
