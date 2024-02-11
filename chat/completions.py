@@ -86,8 +86,8 @@ def chat_with_gpt(settings):
                 for chunk in response:
                     if chunk.choices[0].delta.content is not None:
                         content = chunk.choices[0].delta.content
-                        print(content, end="", flush=True)
                         streamed_response_content += content
+                        print(content, end="", flush=True)
                 if streamed_response_content:
                     chat_history.append({"role": "system", "content": streamed_response_content})
                 print()
