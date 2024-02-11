@@ -4,6 +4,7 @@ import json
 from openai import OpenAI
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
+from datetime import datetime
 
 def load_settings():
     config_path = os.path.join(os.path.expanduser('~'), '.gpt', 'settings.json')
@@ -37,6 +38,17 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
+def save_chat_history(chat_history):
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    filename = f"chat_history_{timestamp}.json"
+    log_folder = os.path.join(os.path.expanduser('~'), '.gpt', 'log')
+    if not os.path.exists(log_folder):
+        os.makedirs(log_folder)
+    save_path = os.path.join(log_folder, filename)
+    with open(save_path, 'w') as file:
+        json.dump(chat_history, file, indent=4)
+    print(f"\033[92mChat history saved to: {save_path}\033[0m")
+
 def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     session = PromptSession()
     bindings = KeyBindings()
@@ -53,31 +65,35 @@ def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     chat_history = []
 
-    while True:
-        user_input = multiline_input()
+    try:
+        while True:
+            user_input = multiline_input()
 
-        chat_history.append({"role": "user", "content": user_input})
-        messages = chat_history
-        response = client.chat.completions.create(
-            messages=messages,
-            **settings
-        )
+            chat_history.append({"role": "user", "content": user_input})
+            messages = chat_history
+            response = client.chat.completions.create(
+                messages=messages,
+                **settings
+            )
 
-        print("\033[94m\nChatGPT:\033[0m")
-        if settings.get("stream", False):
-            streamed_response_content = ""
-            for chunk in response:
-                if chunk.choices[0].delta.content is not None:
-                    content = chunk.choices[0].delta.content
-                    print(content, end="", flush=True)
-                    streamed_response_content += content
-            if streamed_response_content:
-                chat_history.append({"role": "system", "content": streamed_response_content})
-            print()
-        else:
-            content = response.choices[0].message.content
-            print(content)
-            chat_history.append({"role": "system", "content": content})
+            print("\033[94m\nChatGPT:\033[0m")
+            if settings.get("stream", False):
+                streamed_response_content = ""
+                for chunk in response:
+                    if chunk.choices[0].delta.content is not None:
+                        content = chunk.choices[0].delta.content
+                        print(content, end="", flush=True)
+                        streamed_response_content += content
+                if streamed_response_content:
+                    chat_history.append({"role": "system", "content": streamed_response_content})
+                print()
+            else:
+                content = response.choices[0].message.content
+                print(content)
+                chat_history.append({"role": "system", "content": content})
+    finally:
+        if chat_history:
+            save_chat_history(chat_history)
 
 def main():
     try:
@@ -92,9 +108,11 @@ def main():
         print("\033[94m\n(Ctrl+P to send prompt.)\033[0m")
         chat_with_gpt(settings)
     except KeyboardInterrupt:
-        print("\033[91m\nExiting program. Goodbye!\033[0m")
+        print("\033[91m\nSession ended by user.\033[0m")
     except Exception as e:
         print(f"\033[91m\nAn unexpected error occurred: {e}\033[0m")
+    finally:
+        print("\033[94mGoodbye!\033[0m")
 
 if __name__ == "__main__":
     main()
