@@ -1,10 +1,11 @@
-import os
 import json
+import os
 
+from datetime import datetime
 from openai import OpenAI
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
-from datetime import datetime
+
 
 def load_settings():
     config_path = os.path.join(os.path.expanduser('~'), '.chatgpt', 'settings.json')
