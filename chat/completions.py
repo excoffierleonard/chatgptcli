@@ -37,22 +37,6 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
-def print_colored(text, color, end="\n"):
-    colors = {
-        "white": "\033[97m",
-        "red": "\033[91m",
-        "green": "\033[92m",
-        "blue": "\033[94m",
-        "magenta": "\033[95m",
-        "yellow": "\033[93m",
-        "cyan": "\033[96m",
-    }
-    end_color = "\033[0m"
-    if color in colors:
-        print(f"{colors[color]}{text}{end_color}", end=end)
-    else:
-        print(text, end=end)
-
 def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     session = PromptSession()
     bindings = KeyBindings()
