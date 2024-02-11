@@ -9,7 +9,7 @@ from datetime import datetime
 def load_settings():
     config_path = os.path.join(os.path.expanduser('~'), '.chatgpt', 'settings.json')
     if not os.path.exists(config_path):
-        print("Settings file not found, creating a default settings file.")
+        print("\033[94mSettings file not found, creating a default settings file...\033[0m")
         os.makedirs(os.path.dirname(config_path), exist_ok=True)
         default_settings = {
             "model": "gpt-4",
@@ -43,6 +43,7 @@ def save_chat_history(chat_history):
     filename = f"chat_history_{timestamp}.json"
     log_folder = os.path.join(os.path.expanduser('~'), '.chatgpt', 'log')
     if not os.path.exists(log_folder):
+        print("\033[94mLog folder not found, creating a log folder...\033[0m")
         os.makedirs(log_folder)
     save_path = os.path.join(log_folder, filename)
     with open(save_path, 'w') as file:
