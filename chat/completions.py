@@ -103,9 +103,7 @@ def chat_with_gpt(settings):
         if chat_history:
             save_chat_history(chat_history)
 
-def main():
-    try:
-        settings = load_settings()
+def start_screen(settings):
         print("\033[94mWelcome to ChatGPT, How can I help you today? \n\nCurrent settings:\033[0m")
         for key, value in settings.items():
             print(f"\033[93m{key}:\033[0m ", end="")
@@ -114,6 +112,11 @@ def main():
             else:
                 print(value)
         print("\033[94m\n(Ctrl+P to send prompt.)\033[0m")
+
+def main():
+    try:
+        settings = load_settings()
+        start_screen(settings)
         chat_with_gpt(settings)
     except KeyboardInterrupt:
         print("\033[91m\nSession ended by user.\033[0m")
