@@ -3,16 +3,17 @@ import os
 
 from datetime import datetime
 from openai import OpenAI
+from pathlib import Path
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 
 def load_settings():
-    config_path = os.path.join(os.path.expanduser('~'), '.chatgpt', 'settings.json')
-    if not os.path.exists(config_path):
-        print("\033[94mSettings file not found, creating a default settings file...\033[0m")
-        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+    config_path = Path.home() / '.chatgpt' / 'settings.json'
+    if not config_path.exists():
+        print("\033[94mSettings file not found, creating default settings file...\033[0m")
+        config_path.parent.mkdir(parents=True, exist_ok=True)
         default_settings = {
             "model": "gpt-4",
             "frequency_penalty": None,
@@ -43,11 +44,11 @@ def load_settings():
 def save_chat_history(chat_history):
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     filename = f"chat_history_{timestamp}.json"
-    log_folder = os.path.join(os.path.expanduser('~'), '.chatgpt', 'log')
-    if not os.path.exists(log_folder):
+    log_folder = Path.home() / '.chatgpt' / 'log'
+    if not log_folder.exists():
         print("\033[94\nmLog folder not found, creating a log folder...\033[0m")
-        os.makedirs(log_folder)
-    save_path = os.path.join(log_folder, filename)
+        log_folder.mkdir(parents=True)
+    save_path = log_folder / filename
     with open(save_path, 'w') as file:
         json.dump(chat_history, file, indent=4)
     print(f"\033[94m\nChat history saved to: \033[92m{save_path}\033[0m")
