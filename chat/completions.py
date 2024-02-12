@@ -64,6 +64,27 @@ def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     text = session.prompt('', multiline=True, key_bindings=bindings)
     return text
 
+def process_streamed_response(response, chat_history, console):
+    streamed_response_content = ""
+    for chunk in response:
+        if chunk.choices[0].delta.content is not None:
+            content = chunk.choices[0].delta.content
+            streamed_response_content += content
+            print(content, end="", flush=True)
+    if streamed_response_content:
+        chat_history.append({"role": "system", "content": streamed_response_content})
+        print("\033[91m\n----Mardown Rendering Begining---\033[0m")
+        console.clear()
+        console.print(Markdown(streamed_response_content))
+
+def handle_response(response, chat_history, settings, console):
+    if settings.get("stream", False):
+        process_streamed_response(response, chat_history, console)
+    else:
+        content = response.choices[0].message.content
+        console.print(Markdown(content))
+        chat_history.append({"role": "system", "content": content})
+
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     console = Console()
@@ -72,31 +93,11 @@ def chat_with_gpt(settings):
     try:
         while True:
             user_input = multiline_input()
-
             chat_history.append({"role": "user", "content": user_input})
             messages = chat_history
-            response = client.chat.completions.create(
-                messages=messages,
-                **settings
-            )
-
+            response = client.chat.completions.create(messages=messages, **settings)
             print("\033[94m\nChatGPT:\033[0m")
-            if settings.get("stream", False):
-                streamed_response_content = ""
-                for chunk in response:
-                    if chunk.choices[0].delta.content is not None:
-                        content = chunk.choices[0].delta.content
-                        streamed_response_content += content
-                        print(content, end="", flush=True)
-                if streamed_response_content:
-                    chat_history.append({"role": "system", "content": streamed_response_content})
-                    print("\033[91m\n----Mardown Rendering Begining---\033[0m")
-                    console.clear()
-                    console.print(Markdown(streamed_response_content))
-            else:
-                content = response.choices[0].message.content
-                console.print(Markdown(content))
-                chat_history.append({"role": "system", "content": content})
+            handle_response(response, chat_history, settings, console)
     finally:
         if chat_history:
             save_chat_history(chat_history)
