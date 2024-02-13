@@ -95,11 +95,35 @@ def handle_response(response, chat_history, settings, console):
     else:
         process_normal_response(response, chat_history, console)
 
+# Function to load system_prompt from sytem_prompt.json or create an empty one if it doesn't exist
+def load_system_prompt(chat_history):
+    system_prompt_path = Path.home() / '.chatgpt' / 'system_prompt.json'
+    if system_prompt_path.exists():
+        with open(system_prompt_path, 'r') as system_prompt_file:
+            system_prompt = json.load(system_prompt_file)
+    else:
+        system_prompt = ""
+        with open(system_prompt_path, 'w') as system_prompt_file:
+            json.dump(system_prompt, system_prompt_file)
+    
+    if system_prompt:
+        if len(system_prompt) > 64:
+            truncated_prompt = system_prompt[:61] + "..."
+        else:
+            truncated_prompt = system_prompt
+        chat_history.append({"role": "system", "content": system_prompt})
+        print(f"\033[94m\nSystem: \033[92m\n{truncated_prompt}\033[0m") 
+    else:
+        print(f"\033[94m\nNo System Prompt Loaded.\033[0m")
+    return chat_history
+
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     console = Console()
     chat_history = []
+
+    load_system_prompt(chat_history)
 
     try:
         while True:
@@ -114,7 +138,7 @@ def chat_with_gpt(settings):
             save_chat_history(chat_history)
 
 # Displays a welcome message and current settings at the program start.
-def start_screen(settings):
+def default_start_screen(settings):
         print("\033[94mWelcome to ChatGPT, How can I help you today? \n\nCurrent settings:\033[0m")
         for key, value in settings.items():
             print(f"\033[93m{key}:\033[0m ", end="")
@@ -128,7 +152,7 @@ def start_screen(settings):
 def main():
     try:
         settings = load_settings()
-        start_screen(settings)
+        default_start_screen(settings)
         chat_with_gpt(settings)
     except KeyboardInterrupt:
         print("\033[91m\nSession ended by user.\033[0m")
