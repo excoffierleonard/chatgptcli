@@ -9,6 +9,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 
+# Loads chat configuration from a .chatgpt/settings.json file or creates one with default settings if it doesn't exist.
 def load_settings():
     config_path = Path.home() / '.chatgpt' / 'settings.json'
     if not config_path.exists():
@@ -41,6 +42,7 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
+# Saves the chat history to a timestamped file in the .chatgpt/log directory.
 def save_chat_history(chat_history):
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     filename = f"chat_history_{timestamp}.json"
@@ -53,6 +55,7 @@ def save_chat_history(chat_history):
         json.dump(chat_history, file, indent=4)
     print(f"\033[94m\nChat history saved to: \033[92m{save_path}\033[0m")
 
+# Allows multi-line user input, ending with Ctrl+P.
 def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     session = PromptSession()
     bindings = KeyBindings()
@@ -65,6 +68,7 @@ def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
     text = session.prompt('', multiline=True, key_bindings=bindings)
     return text
 
+# Processes and displays a streamed response from ChatGPT, updating the chat history.
 def process_streamed_response(response, chat_history, console):
     streamed_response_content = ""
     for chunk in response:
@@ -78,6 +82,7 @@ def process_streamed_response(response, chat_history, console):
         console.clear()
         console.print(Markdown(streamed_response_content))
 
+# Manages the display of ChatGPT's response (streamed or not) and updates chat history.
 def handle_response(response, chat_history, settings, console):
     if settings.get("stream", False):
         process_streamed_response(response, chat_history, console)
@@ -86,6 +91,7 @@ def handle_response(response, chat_history, settings, console):
         console.print(Markdown(content))
         chat_history.append({"role": "system", "content": content})
 
+# Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     console = Console()
@@ -103,6 +109,7 @@ def chat_with_gpt(settings):
         if chat_history:
             save_chat_history(chat_history)
 
+# Displays a welcome message and current settings at the program start.
 def start_screen(settings):
         print("\033[94mWelcome to ChatGPT, How can I help you today? \n\nCurrent settings:\033[0m")
         for key, value in settings.items():
@@ -113,6 +120,7 @@ def start_screen(settings):
                 print(value)
         print("\033[94m\n(Ctrl+P to send prompt.)\033[0m")
 
+# Entry point of the script; handles the chat session setup, execution, and graceful termination.
 def main():
     try:
         settings = load_settings()
