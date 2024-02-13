@@ -86,7 +86,7 @@ def process_streamed_response(response, chat_history, console):
 def process_normal_response(response, chat_history, console):
     content = response.choices[0].message.content
     chat_history.append({"role": "system", "content": content})
-    console.print(Markdown(content))
+    console.print(Markdown(content.replace(" \n"," \n")))
 
 # Manages the display of ChatGPT's response (streamed or not) and updates chat history.
 def handle_response(response, chat_history, settings, console):
