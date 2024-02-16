@@ -117,6 +117,16 @@ def load_system_prompt(chat_history):
         print(f"\033[94m\nNo System Prompt Loaded.\033[0m")
     return chat_history
 
+# Handles commands from the user
+def handle_command(command, settings):
+    args = command.split()
+    if len(args) == 0:
+        return
+    if args[0] == "/change_model":
+        print("temp")
+    else:
+        print(f"Unknown command: {args[0]}")
+
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
@@ -128,11 +138,15 @@ def chat_with_gpt(settings):
     try:
         while True:
             user_input = multiline_input()
-            chat_history.append({"role": "user", "content": user_input})
-            messages = chat_history
-            response = client.chat.completions.create(messages=messages, **settings)
-            print("\033[94m\nChatGPT:\033[0m")
-            handle_response(response, chat_history, settings, console)
+
+            if user_input.startswith("/"):
+                handle_command(user_input, settings)
+            else:
+                chat_history.append({"role": "user", "content": user_input})
+                messages = chat_history
+                response = client.chat.completions.create(messages=messages, **settings)
+                print("\033[94m\nChatGPT:\033[0m")
+                handle_response(response, chat_history, settings, console)
     finally:
         if chat_history:
             save_chat_history(chat_history)
