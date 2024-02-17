@@ -219,7 +219,7 @@ def main():
         input("\033[94mPress Enter to exit...\033[0m")
     finally:
         save_chat_history()
-        print("\033[94mGoodbye!\033[0m")
+        print("\033[94m\nGoodbye!\033[0m")
 
 if __name__ == "__main__":
     main()
