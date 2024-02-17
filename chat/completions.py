@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from datetime import datetime
 from openai import OpenAI
@@ -122,7 +123,10 @@ def handle_command(command, settings):
     args = command.split()
     if len(args) == 0:
         return
-    if args[0] == "/change_model":
+    if args[0] == "/q":
+        print("\033[91m\nSession ended by user.\033[0m")
+        sys.exit()
+    if args[0] == "/settings":
         print("temp")
     else:
         print(f"Unknown command: {args[0]}")
