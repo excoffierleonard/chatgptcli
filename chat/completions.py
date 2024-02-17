@@ -118,18 +118,29 @@ def load_system_prompt(chat_history):
         print(f"\033[94m\nNo System Prompt Loaded.\033[0m")
     return chat_history
 
+def quit_program():
+    print("\033[91m\nSession ended by user.\033[0m")
+    sys.exit()
+
+def settings():
+    print("Settings placeholder")
+
+def unknown_command(cmd):
+    print(f"Unknown command: {cmd}")
+
+commands = {
+    "/q": quit_program,
+    "/quit": quit_program,
+    "/s" : settings,
+    "/settings": settings,
+}
+
 # Handles commands from the user
-def handle_command(command, settings):
-    args = command.split()
-    if len(args) == 0:
-        return
-    if args[0] == "/q":
-        print("\033[91m\nSession ended by user.\033[0m")
-        sys.exit()
-    if args[0] == "/settings":
-        print("temp")
+def handle_command(cmd):
+    if cmd in commands:
+        commands[cmd]()
     else:
-        print(f"Unknown command: {args[0]}")
+        unknown_command(cmd)
 
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt(settings):
@@ -144,7 +155,7 @@ def chat_with_gpt(settings):
             user_input = multiline_input()
 
             if user_input.startswith("/"):
-                handle_command(user_input, settings)
+                handle_command(user_input)
             else:
                 chat_history.append({"role": "user", "content": user_input})
                 messages = chat_history
