@@ -208,6 +208,7 @@ def main():
         quit_program()
     except Exception as e:
         print(f"\033[91m\nAn unexpected error occurred: {e}\033[0m")
+        input("\033[94mPress Enter to exit...\033[0m")
     finally:
         save_chat_history()
         print("\033[94mGoodbye!\033[0m")
