@@ -144,6 +144,17 @@ def load_system_prompt(chat_history):
         print(f"\033[94m\nNo System Prompt Loaded.\033[0m")
     return chat_history
 
+# Command to diplay the available commands.
+def display_help():
+    print("\033[94m\nList of available commands:\033[0m")
+    print("\033[93m/h, /help:\033[0m Display this help message.")
+    print("\033[93m/q, /quit:\033[0m Quit the program.")
+    print("\033[93m/c, /clear:\033[0m Clear the screen.")
+    print("\033[93m/s, /settings:\033[0m Open settings to view or modify them.")
+    print("\033[93m/r, /restore:\033[0m Restore chat history from a file.")
+    print("\033[94m\nStart your message with \033[93m/ \033[94mto use these commands.\033[0m")
+    print("\033[94mUse \033[93mCtrl+P \033[94mto send your messages.\033[0m")
+
 # Command to quit the program.
 def quit_program():
     print("\033[91m\nSession ended by user.\033[0m")
@@ -251,6 +262,8 @@ def unknown_command(cmd):
 # Handles commands from the user
 def handle_command(cmd):
     commands = {
+    "/h": display_help,
+    "/help": display_help,
     "/q": quit_program,
     "/quit": quit_program,
     "/c": clear_screen,
@@ -296,7 +309,8 @@ def default_start_screen(settings):
                 print(f"\033[92m{value}\033[0m")
             else:
                 print(value)
-        print("\033[94m\n(Ctrl+P to send prompt.)\033[0m")
+        print("\033[94m\033[93m\n/h, /help: \033[94mDisplays the available commands.)\033[0m")
+        print("\033[94m\033[93m\nCtrl+P \033[94mto send a prompt.)\033[0m")
 
 # Entry point of the script; handles the chat session setup, execution, and graceful termination.
 def main():
