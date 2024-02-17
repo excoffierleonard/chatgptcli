@@ -201,7 +201,7 @@ def reprint_chat_history(chat_history):
 
     for message in chat_history:
         if message["role"] == "user":
-            print("'\033[96m\nYou:\033[0m'")
+            print("\033[96m\nYou:\033[0m")
             print(f"{message['content']}")
         elif message["role"] == "system":
             print("\033[94m\nChatGPT:\033[0m")
@@ -209,22 +209,40 @@ def reprint_chat_history(chat_history):
             print("\033[91m----Mardown Rendering Begining---\033[0m")
             console.print(Markdown(f"{message['content']}"))
 
-# Restores the most recent chat history.
+# Restores chat history.
 def restore_chat_history():
     global chat_history
     log_folder = Path.home() / '.chatgpt' / 'log'
 
     if log_folder.exists() and any(log_folder.iterdir()):
-        most_recent_file = max(log_folder.iterdir(), key=os.path.getctime)
+        chat_files = sorted(log_folder.iterdir(), key=os.path.getctime, reverse=True)[:16]
 
-        with open(most_recent_file, 'r') as file:
-            chat_history = json.load(file)
+        if chat_files:
+            print("\033[94m\nSelect a chat history to restore:\033[0m")
+            for index, file in enumerate(chat_files, start=1):
+                filename = os.path.basename(file)
+                print(f"\033[93m{index}: \033[92m{filename}\033[0m")
 
-        reprint_chat_history(chat_history)
+            selected_index = input("\033[94m\nEnter the number of the chat history to restore (or 'exit' to cancel):\033[0m ")
+            if selected_index.lower() == 'exit':
+                print("\033[94m\nRestoration cancelled.\033[0m")
+                return
 
-        print("\033[94m\nChat history restored successfully.\033[0m")
+            try:
+                selected_index = int(selected_index) - 1
+                if 0 <= selected_index < len(chat_files):
+                    with open(chat_files[selected_index], 'r') as file:
+                        chat_history = json.load(file)
+                    reprint_chat_history(chat_history)
+                    print("\033[94m\nChat history restored successfully.\033[0m")
+                else:
+                    print("\033[91m\nInvalid selection. Please select a number listed above.\033[0m")
+            except ValueError:
+                print("\033[91m\nPlease enter a valid number.\033[0m")
+        else:
+            print("\033[91m\nNo chat history files available to restore.\033[0m")
     else:
-        print("\033[91m\nNo chat history found to restore.\033[0m")
+        print("\033[91m\nNo chat history folder found.\033[0m")
 
 # Command to display on unknow commands.
 def unknown_command(cmd):
