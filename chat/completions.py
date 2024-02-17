@@ -132,15 +132,15 @@ def settings():
 def unknown_command(cmd):
     print(f"Unknown command: {cmd}")
 
-commands = {
+# Handles commands from the user
+def handle_command(cmd):
+    commands = {
     "/q": quit_program,
     "/quit": quit_program,
     "/s" : settings,
     "/settings": settings,
-}
-
-# Handles commands from the user
-def handle_command(cmd):
+    }
+    
     if cmd in commands:
         commands[cmd]()
     else:
