@@ -49,16 +49,22 @@ def load_settings():
 # Saves the chat history to a timestamped file in the .chatgpt/log directory.
 def save_chat_history():
     global chat_history
-    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-    filename = f"chat_history_{timestamp}.json"
-    log_folder = Path.home() / '.chatgpt' / 'log'
-    if not log_folder.exists():
-        print("\033[94\nmLog folder not found, creating a log folder...\033[0m")
-        log_folder.mkdir(parents=True)
-    save_path = log_folder / filename
-    with open(save_path, 'w') as file:
-        json.dump(chat_history, file, indent=4)
-    print(f"\033[94m\nChat history saved to: \033[92m{save_path}\033[0m")
+
+    user_messages_exist = any(message.get("role") == "user" for message in chat_history)
+
+    if user_messages_exist:
+        timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        filename = f"chat_history_{timestamp}.json"
+        log_folder = Path.home() / '.chatgpt' / 'log'
+        if not log_folder.exists():
+            print("\033[94\nmLog folder not found, creating a log folder...\033[0m")
+            log_folder.mkdir(parents=True)
+        save_path = log_folder / filename
+        with open(save_path, 'w') as file:
+            json.dump(chat_history, file, indent=4)
+        print(f"\033[94m\nChat history saved to: \033[92m{save_path}\033[0m")
+    else:
+        print("\033[94m\nChat history empty. Nothing to save.\033[0m")
 
 # Allows multi-line user input, ending with Ctrl+P.
 def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
@@ -140,7 +146,7 @@ def handle_command(cmd):
     "/s" : settings,
     "/settings": settings,
     }
-    
+
     if cmd in commands:
         commands[cmd]()
     else:
