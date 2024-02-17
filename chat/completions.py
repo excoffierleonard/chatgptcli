@@ -13,11 +13,13 @@ from rich.markdown import Markdown
 
 # Global variables
 client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+settings = {}
 chat_history = []
 console = Console()
 
 # Loads chat configuration from a .chatgpt/settings.json file or creates one with default settings if it doesn't exist.
 def load_settings():
+    global settings
     config_path = Path.home() / '.chatgpt' / 'settings.json'
     if not config_path.exists():
         print("\033[94mSettings file not found, creating default settings file...\033[0m")
@@ -43,11 +45,11 @@ def load_settings():
         }
         with open(config_path, 'w') as config_file:
             json.dump(default_settings, config_file, indent=4)
-        return default_settings
+        settings = default_settings
     else:
         with open(config_path, 'r') as config_file:
             settings = json.load(config_file)
-        return settings
+    return settings
 
 # Sanitizes the message to remove any characters that are illegal in filenames.
 def sanitize_message(message):
@@ -152,8 +154,45 @@ def clear_screen():
     console.clear()
 
 # Command to interact with the settings.
-def settings():
-    print("Settings placeholder")
+def change_settings():
+    global settings
+
+    print("\033[94m\nCurrent settings:\033[0m")
+    for key, value in settings.items():
+        print(f"\033[93m{key}:\033[0m ", end="")
+        if value is not None:
+            print(f"\033[92m{value}\033[0m")
+        else:
+            print(value)
+
+    setting_to_change = input("\033[94m\nEnter the setting you want to change (or 'exit' to cancel):\033[0m ")
+    if setting_to_change.lower() == 'exit':
+        print("\033[94mSettings change cancelled.\033[0m")
+        return
+    
+    if setting_to_change not in settings:
+        print(f"\033[91mSetting \033[93m{setting_to_change}\033[91m not found.\033[0m")
+        return
+
+    new_value = input(f"\033[94mEnter the new value for \033[93m{setting_to_change}\033[94m:\033[0m ")
+
+    if new_value.lower() in ['true', 'false']:
+        new_value_converted = new_value.lower() == 'true'
+    else:
+        try:
+            new_value_converted = int(new_value)
+        except ValueError:
+            try:
+                new_value_converted = float(new_value)
+            except ValueError:
+                new_value_converted = new_value
+
+    settings[setting_to_change] = new_value_converted
+    print(f"\033[94mSetting \033[93m{setting_to_change}\033[94m updated to \033[92m{new_value_converted}\033[94m. \033[0m")
+
+    config_path = Path.home() / '.chatgpt' / 'settings.json'
+    with open(config_path, 'w') as config_file:
+        json.dump(settings, config_file, indent=4)
 
 # Command to display on unknow commands.
 def unknown_command(cmd):
@@ -166,8 +205,8 @@ def handle_command(cmd):
     "/quit": quit_program,
     "/c": clear_screen,
     "/clear": clear_screen,
-    "/s" : settings,
-    "/settings": settings,
+    "/s" : change_settings,
+    "/settings": change_settings,
     }
 
     if cmd in commands:
@@ -176,10 +215,11 @@ def handle_command(cmd):
         unknown_command(cmd)
 
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
-def chat_with_gpt(settings):
+def chat_with_gpt():
     global client
     global console
     global chat_history
+    global settings
 
     load_system_prompt(chat_history)
 
@@ -211,7 +251,7 @@ def main():
     try:
         settings = load_settings()
         default_start_screen(settings)
-        chat_with_gpt(settings)
+        chat_with_gpt()
     except KeyboardInterrupt:
         quit_program()
     except Exception as e:
