@@ -194,6 +194,38 @@ def change_settings():
     with open(config_path, 'w') as config_file:
         json.dump(settings, config_file, indent=4)
 
+# Reprints the chat history.
+def reprint_chat_history(chat_history):
+
+    print("\033[93m\nRestored Chat Session:\033[0m")
+
+    for message in chat_history:
+        if message["role"] == "user":
+            print("'\033[96m\nYou:\033[0m'")
+            print(f"{message['content']}")
+        elif message["role"] == "system":
+            print("\033[94m\nChatGPT:\033[0m")
+            print(f"{message['content']}")
+            print("\033[91m----Mardown Rendering Begining---\033[0m")
+            console.print(Markdown(f"{message['content']}"))
+
+# Restores the most recent chat history.
+def restore_chat_history():
+    global chat_history
+    log_folder = Path.home() / '.chatgpt' / 'log'
+
+    if log_folder.exists() and any(log_folder.iterdir()):
+        most_recent_file = max(log_folder.iterdir(), key=os.path.getctime)
+
+        with open(most_recent_file, 'r') as file:
+            chat_history = json.load(file)
+
+        reprint_chat_history(chat_history)
+
+        print("\033[94m\nChat history restored successfully.\033[0m")
+    else:
+        print("\033[91m\nNo chat history found to restore.\033[0m")
+
 # Command to display on unknow commands.
 def unknown_command(cmd):
     print(f"Unknown command: {cmd}")
@@ -207,6 +239,8 @@ def handle_command(cmd):
     "/clear": clear_screen,
     "/s" : change_settings,
     "/settings": change_settings,
+    "/r": restore_chat_history,
+    "/restore": restore_chat_history,
     }
 
     if cmd in commands:
