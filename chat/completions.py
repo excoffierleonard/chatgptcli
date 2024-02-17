@@ -10,6 +10,9 @@ from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 
+# Global chat_history variable
+chat_history = []
+
 # Loads chat configuration from a .chatgpt/settings.json file or creates one with default settings if it doesn't exist.
 def load_settings():
     config_path = Path.home() / '.chatgpt' / 'settings.json'
@@ -44,7 +47,8 @@ def load_settings():
         return settings
 
 # Saves the chat history to a timestamped file in the .chatgpt/log directory.
-def save_chat_history(chat_history):
+def save_chat_history():
+    global chat_history
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     filename = f"chat_history_{timestamp}.json"
     log_folder = Path.home() / '.chatgpt' / 'log'
@@ -146,25 +150,21 @@ def handle_command(cmd):
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
     console = Console()
-    chat_history = []
+    global chat_history
 
     load_system_prompt(chat_history)
 
-    try:
-        while True:
-            user_input = multiline_input()
+    while True:
+        user_input = multiline_input()
 
-            if user_input.startswith("/"):
-                handle_command(user_input)
-            else:
-                chat_history.append({"role": "user", "content": user_input})
-                messages = chat_history
-                response = client.chat.completions.create(messages=messages, **settings)
-                print("\033[94m\nChatGPT:\033[0m")
-                handle_response(response, chat_history, settings, console)
-    finally:
-        if chat_history:
-            save_chat_history(chat_history)
+        if user_input.startswith("/"):
+            handle_command(user_input)
+        else:
+            chat_history.append({"role": "user", "content": user_input})
+            messages = chat_history
+            response = client.chat.completions.create(messages=messages, **settings)
+            print("\033[94m\nChatGPT:\033[0m")
+            handle_response(response, chat_history, settings, console)
 
 # Displays a welcome message and current settings at the program start.
 def default_start_screen(settings):
@@ -184,10 +184,11 @@ def main():
         default_start_screen(settings)
         chat_with_gpt(settings)
     except KeyboardInterrupt:
-        print("\033[91m\nSession ended by user.\033[0m")
+        quit_program()
     except Exception as e:
         print(f"\033[91m\nAn unexpected error occurred: {e}\033[0m")
     finally:
+        save_chat_history()
         print("\033[94mGoodbye!\033[0m")
 
 if __name__ == "__main__":
