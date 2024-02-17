@@ -128,13 +128,16 @@ def load_system_prompt(chat_history):
         print(f"\033[94m\nNo System Prompt Loaded.\033[0m")
     return chat_history
 
+# Command to quit the program.
 def quit_program():
     print("\033[91m\nSession ended by user.\033[0m")
     sys.exit()
 
+# Command to interact with the settings.
 def settings():
     print("Settings placeholder")
 
+# Command to display on unknow commands.
 def unknown_command(cmd):
     print(f"Unknown command: {cmd}")
 
