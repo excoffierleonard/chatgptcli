@@ -11,7 +11,8 @@ from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 
-# Global chat_history variable
+# Global variables
+client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 chat_history = []
 console = Console()
 
@@ -176,7 +177,7 @@ def handle_command(cmd):
 
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt(settings):
-    client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+    global client
     global console
     global chat_history
 
