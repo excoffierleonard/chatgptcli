@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 
 from datetime import datetime
@@ -46,18 +47,29 @@ def load_settings():
             settings = json.load(config_file)
         return settings
 
+# Sanitizes the message to remove any characters that are illegal in filenames.
+def sanitize_message(message):
+    illegal_char_replacement = "_"
+    illegal_chars_pattern = r"[ <>:\"/\\|?*\n\r\t]"
+
+    lower_message = message.lower()
+
+    sanitized_message = re.sub(illegal_chars_pattern, illegal_char_replacement, lower_message)
+    return sanitized_message
+
 # Saves the chat history to a timestamped file in the .chatgpt/log directory.
 def save_chat_history():
     global chat_history
 
-    user_messages_exist = any(message.get("role") == "user" for message in chat_history)
+    first_user_message = next((message["content"] for message in chat_history if message.get("role") == "user"), None)
 
-    if user_messages_exist:
+    if first_user_message:
+        sanitized_message = sanitize_message(first_user_message)[:64]
         timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        filename = f"chat_history_{timestamp}.json"
+        filename = f"{timestamp}-{sanitized_message}.json"
         log_folder = Path.home() / '.chatgpt' / 'log'
         if not log_folder.exists():
-            print("\033[94\nmLog folder not found, creating a log folder...\033[0m")
+            print(f"\033[94\nmLog folder not found, creating: \033[92m{log_folder}\033[0m")
             log_folder.mkdir(parents=True)
         save_path = log_folder / filename
         with open(save_path, 'w') as file:
