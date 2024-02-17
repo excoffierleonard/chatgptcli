@@ -13,6 +13,7 @@ from rich.markdown import Markdown
 
 # Global chat_history variable
 chat_history = []
+console = Console()
 
 # Loads chat configuration from a .chatgpt/settings.json file or creates one with default settings if it doesn't exist.
 def load_settings():
@@ -145,6 +146,10 @@ def quit_program():
     print("\033[91m\nSession ended by user.\033[0m")
     sys.exit()
 
+def clear_screen():
+    global console
+    console.clear()
+
 # Command to interact with the settings.
 def settings():
     print("Settings placeholder")
@@ -158,6 +163,8 @@ def handle_command(cmd):
     commands = {
     "/q": quit_program,
     "/quit": quit_program,
+    "/c": clear_screen,
+    "/clear": clear_screen,
     "/s" : settings,
     "/settings": settings,
     }
@@ -170,7 +177,7 @@ def handle_command(cmd):
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt(settings):
     client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
-    console = Console()
+    global console
     global chat_history
 
     load_system_prompt(chat_history)
