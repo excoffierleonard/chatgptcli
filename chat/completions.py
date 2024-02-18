@@ -106,7 +106,6 @@ def process_streamed_response(response, chat_history, console):
     if streamed_response_content:
         chat_history.append({"role": "system", "content": streamed_response_content})
         print("\033[91m\n----Mardown Rendering Begining---\033[0m")
-        console.clear()
         console.print(Markdown(streamed_response_content))
 
 # Processes and displays a normal (non-streamed) response from ChatGPT, updating the chat history.
@@ -152,6 +151,7 @@ def display_help():
     print("\033[93m/c, /clear:\033[0m Clear the screen.")
     print("\033[93m/s, /settings:\033[0m Open settings to view or modify them.")
     print("\033[93m/r, /restore:\033[0m Restore chat history from a file.")
+    print("\033[93m/p, /preprompt:\033[0m Modifies the preprompt (System Prompt).")
     print("\033[94m\nStart your message with \033[93m/ \033[94mto use these commands.\033[0m")
     print("\033[94mUse \033[93mCtrl+P \033[94mto send your messages.\033[0m")
 
@@ -255,6 +255,55 @@ def restore_chat_history():
     else:
         print("\033[91m\nNo chat history folder found.\033[0m")
 
+# Reloads the system prompt.
+def reload_system_prompt():
+    global chat_history
+
+    system_prompt_path = Path.home() / '.chatgpt' / 'system_prompt.json'
+    if system_prompt_path.exists():
+        with open(system_prompt_path, 'r') as system_prompt_file:
+            system_prompt = json.load(system_prompt_file)
+
+            system_prompt_index = next((i for i, message in enumerate(chat_history) if message.get("role") == "system"), None)
+
+            if system_prompt_index is not None:
+                chat_history[system_prompt_index] = {"role": "system", "content": system_prompt}
+            else:
+                chat_history.insert(0, {"role": "system", "content": system_prompt})
+
+            if len(system_prompt) > 64:
+                truncated_prompt = system_prompt[:61] + "..."
+            else:
+                truncated_prompt = system_prompt
+            print(f"\033[94m\nNew System Prompt: \033[92m\n{truncated_prompt}\033[0m")
+    else:
+        print("\033[94m\nNo system prompt found to update.\033[0m")
+
+# Command to change the preprompt (system prompt).
+def change_preprompt():
+    global chat_history
+
+    system_prompt_path = Path.home() / '.chatgpt' / 'system_prompt.json'
+    existing_prompt = ""
+
+    if system_prompt_path.exists():
+        with open(system_prompt_path, 'r') as system_prompt_file:
+            existing_prompt = json.load(system_prompt_file)
+            print(f"\033[94m\nCurrent System Prompt: \033[92m{existing_prompt}\033[0m")
+    else:
+        print(f"\033[94m\nNo existing system prompt found.\033[0m")
+
+    new_system_prompt = input("\033[94m\nEnter new system prompt (or 'cancel' to abort):\033[0m ")
+
+    if new_system_prompt.lower() == 'cancel':
+        print("\033[94m\nSystem prompt change cancelled.\033[0m")
+        return
+
+    with open(system_prompt_path, 'w') as system_prompt_file:
+        json.dump(new_system_prompt, system_prompt_file)
+
+    reload_system_prompt()
+
 # Command to display on unknow commands.
 def unknown_command(cmd):
     print(f"Unknown command: {cmd}")
@@ -272,6 +321,8 @@ def handle_command(cmd):
     "/settings": change_settings,
     "/r": restore_chat_history,
     "/restore": restore_chat_history,
+    "/p": change_preprompt,
+    "/preprompt": change_preprompt,
     }
 
     if cmd in commands:
@@ -309,8 +360,8 @@ def default_start_screen(settings):
                 print(f"\033[92m{value}\033[0m")
             else:
                 print(value)
-        print("\033[94m\033[93m\n/h, /help: \033[94mDisplays the available commands.)\033[0m")
-        print("\033[94m\033[93m\nCtrl+P \033[94mto send a prompt.)\033[0m")
+        print("\033[94m\033[93m\n/h, /help: \033[94mDisplays the available commands.\033[0m")
+        print("\033[94m\033[93m\nCtrl+P \033[94mto send a prompt.\033[0m")
 
 # Entry point of the script; handles the chat session setup, execution, and graceful termination.
 def main():
