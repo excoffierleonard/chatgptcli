@@ -151,7 +151,7 @@ def display_help():
     print("\033[93m/c, /clear:\033[0m Clear the screen.")
     print("\033[93m/s, /settings:\033[0m Open settings to view or modify them.")
     print("\033[93m/r, /restore:\033[0m Restore chat history from a file.")
-    print("\033[93m/p, /preprompt:\033[0m Modifies the preprompt (System Prompt).")
+    print("\033[93m/p, /preprompt:\033[0m Modify the preprompt (System Prompt).")
     print("\033[94m\nStart your message with \033[93m/ \033[94mto use these commands.\033[0m")
     print("\033[94mUse \033[93mCtrl+P \033[94mto send your messages.\033[0m")
 
