@@ -1,5 +1,7 @@
 # ChatGPT CLI
 
+## Overview
+
 ChatGPT CLI is a command-line interface for interacting with OpenAI's latest text models using customizable settings and streamlined multi-line input. It allows for saving and restoring chat history, modifying settings, and handling different user commands seamlessly.
 
 ## Features
