@@ -78,13 +78,59 @@ To change the system prompt, use the `/p` or `/preprompt` command and enter the 
 
 ### Chat History
 
-- **Save**: The chat history is automatically saved to a file in the `.chatgptcli/log` directory with a timestamp.
+- **Save**: The chat history is automatically saved to a file in the `~/.chatgptcli/log` directory with a timestamp.
 
 - **Restore**: Use the `/r` or `/restore` command to restore a previous chat history.
 
 ### Error Handling
 
 The program handles interruptions and unexpected errors gracefully, ensuring that the chat history is saved before exiting.
+
+## Example
+
+```
+Welcome to ChatGPT, How can I help you today?
+
+Current settings:
+model: gpt-4
+frequency_penalty: None
+logit_bias: None
+logprobs: None
+top_logprobs: None
+max_tokens: None
+n: None
+presence_penalty: None
+response_format: None
+seed: None
+stop: None
+stream: None
+temperature: None
+top_p: None
+tools: None
+tool_choice: None
+user: None
+
+/h, /help: Displays the available commands.
+
+Ctrl+P to send a prompt.
+
+No System Prompt Loaded.
+
+You:
+Hello, how are you?
+
+ChatGPT:
+As an artificial intelligence, I do not have feelings, but thank you for asking! How can I assist you today?
+
+You:
+
+
+Session ended by user.
+
+Chat history saved to: /Users/el/.chatgptcli/log/2024-05-16-17-49-46-hello,_how_are_you_.json
+
+Goodbye!
+```
 
 ## Possible Improvements
 
