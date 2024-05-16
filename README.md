@@ -76,15 +76,57 @@ To modify the settings, use the `/s` or `/settings` command, and follow the prom
 
 To change the system prompt, use the `/p` or `/preprompt` command and enter the new prompt.
 
-## Chat History
+### Chat History
 
 - **Save**: The chat history is automatically saved to a file in the `.chatgptcli/log` directory with a timestamp.
 
 - **Restore**: Use the `/r` or `/restore` command to restore a previous chat history.
 
-## Error Handling
+### Error Handling
 
 The program handles interruptions and unexpected errors gracefully, ensuring that the chat history is saved before exiting.
+
+## Possible Improvements
+
+### 1. Fix Save on Close Not Ctrl+C
+
+Improve the program to ensure chat history is saved even when the script is closed normally, not just when interrupted with Ctrl+C.
+
+### 2. Dynamic Markdown Formatting
+
+Enhance the Markdown rendering to adjust dynamically with window resize and handle copy-pasting properly.
+
+### 3. Stop Prompt Generation Midway
+
+Introduce a function that allows users to stop the prompt generation in the middle of the process.
+
+### 4. Description for Settings
+
+Add detailed descriptions for each setting, making it easier for users to understand and modify them.
+
+### 5. Improved User Command and Preprompt Formatting
+
+Improve formatting to make prompt texts clearer when the user is asked for commands or preprompt entries.
+
+### 6. Enhanced `reprint_chat_history` Function
+
+Update the `reprint_chat_history` function to ensure that system prompts are correctly rendered.
+
+### 7. Enhanced `change_settings` Function
+
+Enhance the `change_settings` function by adding checks and validations to ensure new settings values are valid and sensible.
+
+### 8. Correct Handling of `\n\n`
+
+Ensure that double newlines (`\n\n`) are correctly handled in user inputs and system responses.
+
+### 9. Validate Settings and OpenAI API Key
+
+Implement validation checks for both settings and the OpenAI API key to make sure they meet requirements before proceeding with their usage.
+
+### 10. Early Stream Break Shortcut
+
+Add a shortcut to allow users to break the streaming of responses early without exiting the program.
 
 ## License
 
