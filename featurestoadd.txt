@@ -1,18 +1,10 @@
-fix save on close not ctrl c
-make mardown formating dynamic to window resize and copy pastes
-enhance youtube downloader try to get high resolution
-add a function to stop prompt generation midway
-add description for settings
-improve formating to the line when asking user for commands or preprompt
-improve reprint chat_history function so taht system prompt is correctly rendered
-enhance change settings function with checks etc...
-setup.sh, auto update duplicacy, auto create user el, auto set ip, verify if script can be rerun again with no
-problem
-ytsum fix compression function to be elegent and also clenaup function to also delete normal verison of audio
-file
-rebuild copilot preprompt current working file.
-verify that \n\n is handled correctly
-do something with returened token info
-add validation of settings and openai api key
-add a shortcut to break early the stream without exiting program.
-look at all the available functionnality and make them work
+- fix save on close not ctrl c
+- make mardown formating dynamic to window resize and copy pastes
+- add a function to stop prompt generation midway
+- add description for settings
+- improve formating to the line when asking user for commands or preprompt
+- improve reprint chat_history function so taht system prompt is correctly rendered
+- enhance change settings function with checks etc...
+- verify that \n\n is handled correctly
+- add validation of settings and openai api key
+- add a shortcut to break early the stream without exiting program.
