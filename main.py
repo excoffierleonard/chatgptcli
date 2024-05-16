@@ -2,27 +2,30 @@ import json
 import os
 import re
 import sys
-
 from datetime import datetime
-from openai import OpenAI
 from pathlib import Path
+
+from openai import OpenAI
 from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
 
 # Global variables
-client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 settings = {}
 chat_history = []
 console = Console()
 
-# Loads chat configuration from a .chatgpt/settings.json file or creates one with default settings if it doesn't exist.
+
+# Loads chat configuration from a .chatgptcli/settings.json file or creates one with default settings if it doesn't exist.
 def load_settings():
     global settings
-    config_path = Path.home() / '.chatgpt' / 'settings.json'
+    config_path = Path.home() / ".chatgptcli" / "settings.json"
     if not config_path.exists():
-        print("\033[94mSettings file not found, creating default settings file...\033[0m")
+        print(
+            "\033[94mSettings file not found, creating default settings file...\033[0m"
+        )
         config_path.parent.mkdir(parents=True, exist_ok=True)
         default_settings = {
             "model": "gpt-4",
@@ -41,15 +44,16 @@ def load_settings():
             "top_p": None,
             "tools": None,
             "tool_choice": None,
-            "user": None
+            "user": None,
         }
-        with open(config_path, 'w') as config_file:
+        with open(config_path, "w") as config_file:
             json.dump(default_settings, config_file, indent=4)
         settings = default_settings
     else:
-        with open(config_path, 'r') as config_file:
+        with open(config_path, "r") as config_file:
             settings = json.load(config_file)
     return settings
+
 
 # Sanitizes the message to remove any characters that are illegal in filenames.
 def sanitize_message(message):
@@ -58,42 +62,56 @@ def sanitize_message(message):
 
     lower_message = message.lower()
 
-    sanitized_message = re.sub(illegal_chars_pattern, illegal_char_replacement, lower_message)
+    sanitized_message = re.sub(
+        illegal_chars_pattern, illegal_char_replacement, lower_message
+    )
     return sanitized_message
 
-# Saves the chat history to a timestamped file in the .chatgpt/log directory.
+
+# Saves the chat history to a timestamped file in the .chatgptcli/log directory.
 def save_chat_history():
     global chat_history
 
-    first_user_message = next((message["content"] for message in chat_history if message.get("role") == "user"), None)
+    first_user_message = next(
+        (
+            message["content"]
+            for message in chat_history
+            if message.get("role") == "user"
+        ),
+        None,
+    )
 
     if first_user_message:
         sanitized_message = sanitize_message(first_user_message)[:64]
-        timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+        timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         filename = f"{timestamp}-{sanitized_message}.json"
-        log_folder = Path.home() / '.chatgpt' / 'log'
+        log_folder = Path.home() / ".chatgptcli" / "log"
         if not log_folder.exists():
-            print(f"\033[94\nmLog folder not found, creating: \033[92m{log_folder}\033[0m")
+            print(
+                f"\033[94\nmLog folder not found, creating: \033[92m{log_folder}\033[0m"
+            )
             log_folder.mkdir(parents=True)
         save_path = log_folder / filename
-        with open(save_path, 'w') as file:
+        with open(save_path, "w") as file:
             json.dump(chat_history, file, indent=4)
         print(f"\033[94m\nChat history saved to: \033[92m{save_path}\033[0m")
     else:
         print("\033[94m\nChat history empty. Nothing to save.\033[0m")
 
+
 # Allows multi-line user input, ending with Ctrl+P.
-def multiline_input(prompt_text='\033[96m\nYou:\033[0m'):
+def multiline_input(prompt_text="\033[96m\nYou:\033[0m"):
     session = PromptSession()
     bindings = KeyBindings()
 
-    @bindings.add('c-p')
+    @bindings.add("c-p")
     def _(event):
         event.app.exit(result=session.default_buffer.document.text)
 
     print(prompt_text)
-    text = session.prompt('', multiline=True, key_bindings=bindings)
+    text = session.prompt("", multiline=True, key_bindings=bindings)
     return text
+
 
 # Processes and displays a streamed response from ChatGPT, updating the chat history.
 def process_streamed_response(response, chat_history, console):
@@ -108,11 +126,13 @@ def process_streamed_response(response, chat_history, console):
         print("\033[91m\n----Mardown Rendering Begining---\033[0m")
         console.print(Markdown(streamed_response_content))
 
+
 # Processes and displays a normal (non-streamed) response from ChatGPT, updating the chat history.
 def process_normal_response(response, chat_history, console):
     content = response.choices[0].message.content
     chat_history.append({"role": "system", "content": content})
-    console.print(Markdown(content.replace(" \n"," \n")))
+    console.print(Markdown(content.replace(" \n", " \n")))
+
 
 # Manages the display of ChatGPT's response (streamed or not) and updates chat history.
 def handle_response(response, chat_history, settings, console):
@@ -121,27 +141,29 @@ def handle_response(response, chat_history, settings, console):
     else:
         process_normal_response(response, chat_history, console)
 
+
 # Function to load system_prompt from sytem_prompt.json or create an empty one if it doesn't exist
 def load_system_prompt(chat_history):
-    system_prompt_path = Path.home() / '.chatgpt' / 'system_prompt.json'
+    system_prompt_path = Path.home() / ".chatgptcli" / "system_prompt.json"
     if system_prompt_path.exists():
-        with open(system_prompt_path, 'r') as system_prompt_file:
+        with open(system_prompt_path, "r") as system_prompt_file:
             system_prompt = json.load(system_prompt_file)
     else:
         system_prompt = ""
-        with open(system_prompt_path, 'w') as system_prompt_file:
+        with open(system_prompt_path, "w") as system_prompt_file:
             json.dump(system_prompt, system_prompt_file)
-    
+
     if system_prompt:
         if len(system_prompt) > 64:
             truncated_prompt = system_prompt[:61] + "..."
         else:
             truncated_prompt = system_prompt
         chat_history.append({"role": "system", "content": system_prompt})
-        print(f"\033[94m\nSystem: \033[92m\n{truncated_prompt}\033[0m") 
+        print(f"\033[94m\nSystem: \033[92m\n{truncated_prompt}\033[0m")
     else:
         print(f"\033[94m\nNo System Prompt Loaded.\033[0m")
     return chat_history
+
 
 # Command to diplay the available commands.
 def display_help():
@@ -152,17 +174,22 @@ def display_help():
     print("\033[93m/s, /settings:\033[0m Open settings to view or modify them.")
     print("\033[93m/r, /restore:\033[0m Restore chat history from a file.")
     print("\033[93m/p, /preprompt:\033[0m Modify the preprompt (System Prompt).")
-    print("\033[94m\nStart your message with \033[93m/ \033[94mto use these commands.\033[0m")
+    print(
+        "\033[94m\nStart your message with \033[93m/ \033[94mto use these commands.\033[0m"
+    )
     print("\033[94mUse \033[93mCtrl+P \033[94mto send your messages.\033[0m")
+
 
 # Command to quit the program.
 def quit_program():
     print("\033[91m\nSession ended by user.\033[0m")
     sys.exit()
 
+
 def clear_screen():
     global console
     console.clear()
+
 
 # Command to interact with the settings.
 def change_settings():
@@ -176,19 +203,23 @@ def change_settings():
         else:
             print(value)
 
-    setting_to_change = input("\033[94m\nEnter the setting you want to change (or 'exit' to cancel):\033[0m ")
-    if setting_to_change.lower() == 'exit':
+    setting_to_change = input(
+        "\033[94m\nEnter the setting you want to change (or 'exit' to cancel):\033[0m "
+    )
+    if setting_to_change.lower() == "exit":
         print("\033[94mSettings change cancelled.\033[0m")
         return
-    
+
     if setting_to_change not in settings:
         print(f"\033[91mSetting \033[93m{setting_to_change}\033[91m not found.\033[0m")
         return
 
-    new_value = input(f"\033[94mEnter the new value for \033[93m{setting_to_change}\033[94m:\033[0m ")
+    new_value = input(
+        f"\033[94mEnter the new value for \033[93m{setting_to_change}\033[94m:\033[0m "
+    )
 
-    if new_value.lower() in ['true', 'false']:
-        new_value_converted = new_value.lower() == 'true'
+    if new_value.lower() in ["true", "false"]:
+        new_value_converted = new_value.lower() == "true"
     else:
         try:
             new_value_converted = int(new_value)
@@ -199,11 +230,14 @@ def change_settings():
                 new_value_converted = new_value
 
     settings[setting_to_change] = new_value_converted
-    print(f"\033[94mSetting \033[93m{setting_to_change}\033[94m updated to \033[92m{new_value_converted}\033[94m. \033[0m")
+    print(
+        f"\033[94mSetting \033[93m{setting_to_change}\033[94m updated to \033[92m{new_value_converted}\033[94m. \033[0m"
+    )
 
-    config_path = Path.home() / '.chatgpt' / 'settings.json'
-    with open(config_path, 'w') as config_file:
+    config_path = Path.home() / ".chatgptcli" / "settings.json"
+    with open(config_path, "w") as config_file:
         json.dump(settings, config_file, indent=4)
+
 
 # Reprints the chat history.
 def reprint_chat_history(chat_history):
@@ -220,13 +254,16 @@ def reprint_chat_history(chat_history):
             print("\033[91m----Mardown Rendering Begining---\033[0m")
             console.print(Markdown(f"{message['content']}"))
 
+
 # Restores chat history.
 def restore_chat_history():
     global chat_history
-    log_folder = Path.home() / '.chatgpt' / 'log'
+    log_folder = Path.home() / ".chatgptcli" / "log"
 
     if log_folder.exists() and any(log_folder.iterdir()):
-        chat_files = sorted(log_folder.iterdir(), key=os.path.getctime, reverse=True)[:16]
+        chat_files = sorted(log_folder.iterdir(), key=os.path.getctime, reverse=True)[
+            :16
+        ]
 
         if chat_files:
             print("\033[94m\nSelect a chat history to restore:\033[0m")
@@ -234,20 +271,24 @@ def restore_chat_history():
                 filename = os.path.basename(file)
                 print(f"\033[93m{index}: \033[92m{filename}\033[0m")
 
-            selected_index = input("\033[94m\nEnter the number of the chat history to restore (or 'exit' to cancel):\033[0m ")
-            if selected_index.lower() == 'exit':
+            selected_index = input(
+                "\033[94m\nEnter the number of the chat history to restore (or 'exit' to cancel):\033[0m "
+            )
+            if selected_index.lower() == "exit":
                 print("\033[94m\nRestoration cancelled.\033[0m")
                 return
 
             try:
                 selected_index = int(selected_index) - 1
                 if 0 <= selected_index < len(chat_files):
-                    with open(chat_files[selected_index], 'r') as file:
+                    with open(chat_files[selected_index], "r") as file:
                         chat_history = json.load(file)
                     reprint_chat_history(chat_history)
                     print("\033[94m\nChat history restored successfully.\033[0m")
                 else:
-                    print("\033[91m\nInvalid selection. Please select a number listed above.\033[0m")
+                    print(
+                        "\033[91m\nInvalid selection. Please select a number listed above.\033[0m"
+                    )
             except ValueError:
                 print("\033[91m\nPlease enter a valid number.\033[0m")
         else:
@@ -255,19 +296,30 @@ def restore_chat_history():
     else:
         print("\033[91m\nNo chat history folder found.\033[0m")
 
+
 # Reloads the system prompt.
 def reload_system_prompt():
     global chat_history
 
-    system_prompt_path = Path.home() / '.chatgpt' / 'system_prompt.json'
+    system_prompt_path = Path.home() / ".chatgptcli" / "system_prompt.json"
     if system_prompt_path.exists():
-        with open(system_prompt_path, 'r') as system_prompt_file:
+        with open(system_prompt_path, "r") as system_prompt_file:
             system_prompt = json.load(system_prompt_file)
 
-            system_prompt_index = next((i for i, message in enumerate(chat_history) if message.get("role") == "system"), None)
+            system_prompt_index = next(
+                (
+                    i
+                    for i, message in enumerate(chat_history)
+                    if message.get("role") == "system"
+                ),
+                None,
+            )
 
             if system_prompt_index is not None:
-                chat_history[system_prompt_index] = {"role": "system", "content": system_prompt}
+                chat_history[system_prompt_index] = {
+                    "role": "system",
+                    "content": system_prompt,
+                }
             else:
                 chat_history.insert(0, {"role": "system", "content": system_prompt})
 
@@ -279,56 +331,62 @@ def reload_system_prompt():
     else:
         print("\033[94m\nNo system prompt found to update.\033[0m")
 
+
 # Command to change the preprompt (system prompt).
 def change_preprompt():
     global chat_history
 
-    system_prompt_path = Path.home() / '.chatgpt' / 'system_prompt.json'
+    system_prompt_path = Path.home() / ".chatgptcli" / "system_prompt.json"
     existing_prompt = ""
 
     if system_prompt_path.exists():
-        with open(system_prompt_path, 'r') as system_prompt_file:
+        with open(system_prompt_path, "r") as system_prompt_file:
             existing_prompt = json.load(system_prompt_file)
             print(f"\033[94m\nCurrent System Prompt: \033[92m{existing_prompt}\033[0m")
     else:
         print(f"\033[94m\nNo existing system prompt found.\033[0m")
 
-    new_system_prompt = input("\033[94m\nEnter new system prompt (or 'cancel' to abort):\033[0m ")
+    new_system_prompt = input(
+        "\033[94m\nEnter new system prompt (or 'cancel' to abort):\033[0m "
+    )
 
-    if new_system_prompt.lower() == 'cancel':
+    if new_system_prompt.lower() == "cancel":
         print("\033[94m\nSystem prompt change cancelled.\033[0m")
         return
 
-    with open(system_prompt_path, 'w') as system_prompt_file:
+    with open(system_prompt_path, "w") as system_prompt_file:
         json.dump(new_system_prompt, system_prompt_file)
 
     reload_system_prompt()
+
 
 # Command to display on unknow commands.
 def unknown_command(cmd):
     print(f"Unknown command: {cmd}")
 
+
 # Handles commands from the user
 def handle_command(cmd):
     commands = {
-    "/h": display_help,
-    "/help": display_help,
-    "/q": quit_program,
-    "/quit": quit_program,
-    "/c": clear_screen,
-    "/clear": clear_screen,
-    "/s" : change_settings,
-    "/settings": change_settings,
-    "/r": restore_chat_history,
-    "/restore": restore_chat_history,
-    "/p": change_preprompt,
-    "/preprompt": change_preprompt,
+        "/h": display_help,
+        "/help": display_help,
+        "/q": quit_program,
+        "/quit": quit_program,
+        "/c": clear_screen,
+        "/clear": clear_screen,
+        "/s": change_settings,
+        "/settings": change_settings,
+        "/r": restore_chat_history,
+        "/restore": restore_chat_history,
+        "/p": change_preprompt,
+        "/preprompt": change_preprompt,
     }
 
     if cmd in commands:
         commands[cmd]()
     else:
         unknown_command(cmd)
+
 
 # Handles user interaction with ChatGPT, sending inputs and showing responses based on specified settings.
 def chat_with_gpt():
@@ -351,17 +409,23 @@ def chat_with_gpt():
             print("\033[94m\nChatGPT:\033[0m")
             handle_response(response, chat_history, settings, console)
 
+
 # Displays a welcome message and current settings at the program start.
 def default_start_screen(settings):
-        print("\033[94mWelcome to ChatGPT, How can I help you today? \n\nCurrent settings:\033[0m")
-        for key, value in settings.items():
-            print(f"\033[93m{key}:\033[0m ", end="")
-            if value is not None:
-                print(f"\033[92m{value}\033[0m")
-            else:
-                print(value)
-        print("\033[94m\033[93m\n/h, /help: \033[94mDisplays the available commands.\033[0m")
-        print("\033[94m\033[93m\nCtrl+P \033[94mto send a prompt.\033[0m")
+    print(
+        "\033[94mWelcome to ChatGPT, How can I help you today? \n\nCurrent settings:\033[0m"
+    )
+    for key, value in settings.items():
+        print(f"\033[93m{key}:\033[0m ", end="")
+        if value is not None:
+            print(f"\033[92m{value}\033[0m")
+        else:
+            print(value)
+    print(
+        "\033[94m\033[93m\n/h, /help: \033[94mDisplays the available commands.\033[0m"
+    )
+    print("\033[94m\033[93m\nCtrl+P \033[94mto send a prompt.\033[0m")
+
 
 # Entry point of the script; handles the chat session setup, execution, and graceful termination.
 def main():
@@ -377,6 +441,7 @@ def main():
     finally:
         save_chat_history()
         print("\033[94m\nGoodbye!\033[0m")
+
 
 if __name__ == "__main__":
     main()
