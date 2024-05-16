@@ -132,6 +132,37 @@ Chat history saved to: /Users/el/.chatgptcli/log/2024-05-16-17-49-46-hello,_how_
 Goodbye!
 ```
 
+## How It Works
+
+ChatGPT CLI is designed to provide an easy-to-use command-line interface for interacting with OpenAI's model. Here's a brief explanation of its workflow:
+
+### Initialization
+
+- **Loading Settings**: When the application starts, it loads settings from `~/.chatgptcli/settings.json`. If the file doesn't exist, it creates one with default settings.
+- **Loading System Prompt**: The system prompt, if available, is loaded from `~/.chatgptcli/system_prompt.json` and added to the chat history.
+
+### User Interaction
+
+- **Multi-line Input**: The CLI allows multi-line input, letting users compose their query over multiple lines. The input is sent when the user presses `Ctrl+P`.
+- **Commands**: Users can issue commands by starting their input with a `/`. For example, `/help` to display available commands.
+
+### Generating Responses
+
+- **Sending Messages**: User inputs are sent to the OpenAI's model using the loaded settings. The program can handle both streamed and non-streamed responses.
+- **Displaying Responses**: Responses from OpenAI's model are displayed in the console with support for Markdown rendering, providing a rich text experience.
+
+### Saving and Restoring
+
+- **Saving Chat History**: Chat history is automatically saved to a timestamped JSON file in `~/.chatgptcli/log` when the session ends.
+- **Restoring Chat History**: Users can restore previous chat sessions using the `/restore` command. The saved chat history can be reprinted and continued.
+
+### Customization
+
+- **Settings**: Users can view and modify the application's settings in real-time using the `/settings` command.
+- **System Prompt**: The system prompt can be changed using the `/preprompt` command, allowing users to set a new precondition for the model.
+
+This basic workflow ensures a smooth and user-friendly interaction with the powerful model directly from your terminal.
+
 ## Possible Improvements
 
 ### 1. Fix Save on Close Not Ctrl+C
@@ -174,17 +205,13 @@ Implement validation checks for both settings and the OpenAI API key to make sur
 
 Add a shortcut to allow users to break the streaming of responses early without exiting the program.
 
+## Contribution
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/excoffierleonard/chatgptcli/issues).
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-## Contributing
-
-Feel free to fork the repository, make changes, and submit a pull request.
-
-## Support
-
-For any issues or feature requests, please open an issue on the GitHub repository.
 
 ## Acknowledgements
 
@@ -203,7 +230,3 @@ This project uses the following libraries:
 ---
 
 **Note**: Replace `'your-openai-api-key'` with your actual OpenAI API key.
-
----
-
-Feel free to reach out for more assistance or questions. Enjoy your experience with ChatGPT CLI!
