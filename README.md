@@ -16,32 +16,17 @@ ChatGPT CLI is a command-line interface for interacting with OpenAI's latest tex
 
 ## Requirements
 
-- Python 3.x
-- Openai
-- Prompt Toolkit
-- Rich
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Installation
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/excoffierleonard/chatgptcli.git
-   cd chatgptcli
-   ```
-
-2. Install the required libraries:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+uv sync
+```
 
 ### Environment Variables
 
-Set up the OpenAI API key in your environment variables:
-
-```bash
-export OPENAI_API_KEY='your-openai-api-key'
-```
+- `OPENAI_API_KEY`: Your OpenAI api key.
 
 ## Usage
 
@@ -50,7 +35,7 @@ export OPENAI_API_KEY='your-openai-api-key'
 Run the Program:
 
 ```bash
-python main.py
+uv run main.py
 ```
 
 When the program starts, it will display a welcome message along with the current settings.
@@ -214,21 +199,3 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
-## Acknowledgements
-
-This project uses the following libraries:
-
-- `openai`
-- `prompt_toolkit`
-- `rich`
-- `datetime`
-- `json`
-- `re`
-- `pathlib`
-- `os`
-- `sys`
-
----
-
-**Note**: Replace `'your-openai-api-key'` with your actual OpenAI API key.

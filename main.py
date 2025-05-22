@@ -10,6 +10,9 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
 from rich.markdown import Markdown
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Global variables
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
